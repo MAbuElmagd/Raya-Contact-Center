@@ -19,12 +19,21 @@
     'version': '14.0',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','hr','hr_recruitment','survey','employee_enhancement','wc_hiring_request','wc_ta_extention',
+    'depends': [
+        'base',
+        'hr',
+        'hr_recruitment',
+        'survey',
+        'employee_enhancement',
+        'wc_hiring_request',
+        'wc_ta_extention',
         'fetchmail',
         'utm',
         'attachment_indexation',
         'web_tour',
-        'digest','calendar',],
+        'digest',
+        'calendar',
+        ],
 
     # always loaded
     'data': [
