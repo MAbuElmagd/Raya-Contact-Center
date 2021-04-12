@@ -29,18 +29,24 @@ class hr_recruitment_double_hiring(models.Model):
         res = super(hr_recruitment_double_hiring, self).create(vals)
         if res.job_category=='talent':
             for this in res:
-                old_line = this.env['hr.applicant'].search([('national_id','ilike',res.national_id),('id','!=',res.id),('active','=',True)])
+                old_line = this.env['hr.applicant'].search([('job_category','=','talent'),('national_id','ilike',res.national_id),('id','!=',res.id),('active','=',True)])
                 print(old_line)
                 if len(old_line)>=1:
                     for line in old_line:
                         if line.stage_id.is_final != True and line.stage_id.is_initial != True:
+                            print("8888888888888888888888888888")
                             res.is_hold=True
                             break
                         else:
                             res.is_hold=False
-        stage_line=self.env['hr.recruitment.stage'].search([('job_category','=','talent'),('is_initial','=',True)],limit=1)
-        res.stage_id=stage_line.id
+        if res.job_category=='talent':
+            stage_line=self.env['hr.recruitment.stage'].search([('job_category','=','talent'),('is_initial','=',True)],limit=1)
+            res.stage_id=stage_line.id
+        elif res.job_category=='operational':
+            stage_line=self.env['hr.recruitment.stage'].search([('job_category','=','operational'),('is_o_initial','=',True)],limit=1)
+            res.stage_id=stage_line.id
         return res
+
     @api.onchange('emp_id')
     def get_national_id(self):
         lines=self.env['hr.employee'].search([('id','=',self.emp_id.id)])
@@ -82,28 +88,31 @@ class hr_recruitment_double_hiring(models.Model):
                 if self.stage_id :
                     if not isinstance(t, int):
                         if this.is_initial == False and this.is_final ==False:
-                            old_line = this.env['hr.applicant'].search([('national_id','ilike',this.national_id),('is_initial','!=',True),('is_final','!=',True),('active','=',True),('id','!=',t)])
+                            old_line = this.env['hr.applicant'].search([('job_category','=','talent'),('national_id','ilike',this.national_id),('is_initial','!=',True),('is_final','!=',True),('active','=',True),('id','!=',t)])
                             if len(old_line)>=1:
                                 for line in old_line:
+                                    print("999999999999999999999999")
                                     line.is_hold=True
                             else:
                                 for line in old_line:
                                     line.is_hold=False
                         elif this.is_initial ==True and this.is_final==False:
-                            old_line = this.env['hr.applicant'].search([('national_id','ilike',this.national_id),('is_initial','!=',True),('is_final','!=',True),('active','=',True),('id','!=',t)])
+                            old_line = this.env['hr.applicant'].search([('job_category','=','talent'),('national_id','ilike',this.national_id),('is_initial','!=',True),('is_final','!=',True),('active','=',True),('id','!=',t)])
                             if len(old_line)>=1:
                                 for line in old_line:
                                     line.is_hold=False
                             else:
                                 for line in old_line:
+                                    print("1000000000000000000000000000")
                                     line.is_hold=True
                         elif this.is_initial !=True and this.is_final ==True:
-                            old_line = this.env['hr.applicant'].search([('national_id','ilike',this.national_id),('is_initial','!=',True),('is_final','!=',True),('active','=',True)])
+                            old_line = this.env['hr.applicant'].search([('job_category','=','talent'),('national_id','ilike',this.national_id),('is_initial','!=',True),('is_final','!=',True),('active','=',True)])
                             if len(old_line)>=1:
                                 for line in old_line:
                                     line.is_hold=False
                             else:
                                 for line in old_line:
+                                    print("200000000000000000000000000000")
                                     line.is_hold=True
                         else:
                             this.is_hold=False
@@ -113,10 +122,11 @@ class hr_recruitment_double_hiring(models.Model):
         res=super(hr_recruitment_double_hiring, self).toggle_active()
         for this in self:
             if this.job_category=='talent':
-                old_line = this.env['hr.applicant'].search([('national_id','ilike',this.national_id),('active','=',True)])
+                old_line = this.env['hr.applicant'].search([('job_category','=','talent'),('national_id','ilike',this.national_id),('active','=',True)])
                 if len(old_line)>=1:
                     for line in old_line:
                         if line.stage_id.is_final != True and line.stage_id.is_initial != True :
+                            print("3000000000000000000000000")
                             line.is_hold=True
                         else:
                             line.is_hold=False
@@ -124,10 +134,11 @@ class hr_recruitment_double_hiring(models.Model):
     def archive_applicant(self):
         for this in self:
             if this.job_category=='talent':
-                old_line = this.env['hr.applicant'].search([('national_id','ilike',this.national_id),('active','=',True)])
+                old_line = this.env['hr.applicant'].search([('job_category','=','talent'),('national_id','ilike',this.national_id),('active','=',True)])
                 if len(old_line)>=1:
                     for line in old_line:
                         if line.stage_id.is_final != True and line.stage_id.is_initial != True :
+                            print("40000000000000000000000")
                             line.is_hold=True
                         else:
                             line.is_hold=False
@@ -143,10 +154,11 @@ class hr_recruitment_double_hiring(models.Model):
     def unlink(self):
         for this in self:
             if this.job_category=='talent':
-                old_line = this.env['hr.applicant'].search([('national_id','ilike',this.national_id),('active','=',True)])
+                old_line = this.env['hr.applicant'].search([('job_category','=','talent'),('national_id','ilike',this.national_id),('active','=',True)])
                 if len(old_line)>=1:
                     for line in old_line:
                         if line.stage_id.is_final != True and line.stage_id.is_initial != True :
+                            print("50000000000000000000000000")
                             line.is_hold=True
                         else:
                             line.is_hold=False

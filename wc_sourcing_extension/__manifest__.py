@@ -10,6 +10,7 @@
     "depends": ["hr_recruitment","wc_hiring_request","base",'employee_enhancement'],
     "data": [
         "views/wc_sourcing_ext.xml",
+        "data/utm_data.xml",
     ],
     "license": "LGPL-3",
     "installable": True,

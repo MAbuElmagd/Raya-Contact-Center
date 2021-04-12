@@ -177,14 +177,15 @@ class assessment_center(models.Model):
         if self.assign_to==False:
             raise exceptions.UserError(_('You cannot go to the next stage without adding Assign To.'))
         
-    answer_id = fields.Many2one('survey.user_input', compute="_compute_answer_id")
-    def _compute_answer_id(self):
-        for this in self:
-            this.answer_id = False
-            if this.assessment_test:
-                answers = self.env['survey.user_input'].search([('survey_id','=',this.assessment_test.id),('assessment_id','=',this.id),('state','=','done')])
-                if len(answers) == 1:
-                    this.answer_id = answers.id
+    answer_id = fields.Many2one('survey.user_input')
+    # , compute="_compute_answer_id"
+    # def _compute_answer_id(self):
+    #     for this in self:
+    #         this.answer_id = False
+    #         if this.assessment_test:
+    #             answers = self.env['survey.user_input'].search([('survey_id','=',this.assessment_test.id),('assessment_id','=',this.id),('state','=','done')])
+    #             if len(answers) == 1:
+    #                 this.answer_id = answers.id
 
     def action_survey_user_input_completed(self):
         action = self.env['ir.actions.act_window']._for_xml_id('survey.action_survey_user_input')
@@ -495,6 +496,18 @@ class assessment_center(models.Model):
             res = super(assessment_center, self).write(vals)
         return res
 
+    def unlink(self):
+        for this in self:
+            if this.done:
+                raise UserError(
+                    _('you can not delete this record.')
+                )
+            if this.answer_id:
+                raise UserError(
+                    _('you can not delete this record(Delete connected Answer First).')
+                )
+        return super(assessment_center, self).unlink()
+
 class stage(models.Model):
     _name = 'assessment_center.stage'
     _description = 'Assessment Center stages'
@@ -646,6 +659,13 @@ class Applicant(models.Model):
                     mail.send()
             return True
 
+    def unlink(self):
+        for this in self:
+            if this.ass_counts>0:
+                raise UserError(
+                    _('you can not delete this record delete (Delete connected Assessment First).')
+                )
+        return super(Applicant, self).unlink()
 class MailTemplate(models.Model):
     _inherit = 'mail.template'
 

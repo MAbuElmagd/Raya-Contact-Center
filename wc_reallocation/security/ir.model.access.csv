@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_reallocation_reason,reallocation.reason,model_reallocation_reason,base.group_user,1,1,1,1
+access_reallocation_reallocation,reallocation.reallocation,model_reallocation_reallocation,base.group_user,1,1,1,1
+access_message_wizard,message.wizard,model_message_wizard,base.group_user,1,1,1,1

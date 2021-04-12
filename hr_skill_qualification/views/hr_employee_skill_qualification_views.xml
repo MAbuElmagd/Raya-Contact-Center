@@ -5,6 +5,11 @@
 		<field name="model">hr.job</field>
 		<field name="inherit_id" ref="hr.view_hr_job_form"/>
 		<field name="arch" type="xml">
+
+			<field name="no_of_recruitment" position="before">
+				<field name="job_code" />
+			</field>
+
 			<xpath expr="//page[1]" position="after">
 
 				<page name="hr_skills" string="HR Skills" attrs="{'invisible':[('job_category','=','talent')]}">

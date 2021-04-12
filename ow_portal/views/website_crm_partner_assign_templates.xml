@@ -7,8 +7,8 @@
         </xpath>
     </template>
     <!-- ######################################### ASSETS ########################################### -->
-    
-    
+
+
     <!-- ######################################### DashBoard ######################################## -->
     <template id="portal_my_home_menu_skills" name="Portal layout : skills menu entry" inherit_id="portal.portal_breadcrumbs" priority="15">
         <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
@@ -48,10 +48,15 @@
 
                 </t>
             </li>
+            <!-- <li t-if="is_emp" t-attf-class="breadcrumb-item #{'active ' if not is_emp else ''}">
+                <a t-attf-href="/my/online">
+                    Onboarding
+                </a>
+            </li> -->
         </xpath>
     </template>
     <!-- ################################################################################ -->
-    
+
     <!-- ############################## Home Landing Page Links ############################# -->
     <template id="portal_my_home_skills" name="Show Skills" customize_show="True" inherit_id="portal.portal_my_home" priority="15">
         <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
@@ -78,6 +83,20 @@
                 <t t-set="title">Check List (Welcome)</t>
                 <t t-set="url" t-value="'/my/check_list'"/>
                 <t t-set="placeholder_count" t-value="'check_list_count'"/>
+            </t>
+            <!-- ################  Language Skills ################# -->
+            <t t-if="is_emp">
+              <t t-call="portal.portal_docs_entry">
+                  <t t-set="title">Onboarding</t>
+                  <t t-set="url" t-value="'/my/online'"/>
+              </t>
+            </t>
+            <!-- ################  Language Skills ################# -->
+            <t t-if="is_emp">
+              <t t-call="portal.portal_docs_entry">
+                  <t t-set="title">Technical Interview</t>
+                  <t t-set="url" t-value="'/my/tinterviews'"/>
+              </t>
             </t>
         </xpath>
     </template>
@@ -117,7 +136,7 @@
                             </div>
                             <div class="form-group">
                                 <label class="col-form-label h4dd" for="tech_applicant_talent_level">Skill Level</label>
-                                
+
                                 <select name="nontech_applicant_talent_level" t-attf-class="form-control">
                                     <option value="">Select Your Level...</option>
                                     <t t-foreach="levels_lst or []" t-as="levelst">
@@ -170,7 +189,7 @@
             <t t-call="portal.portal_searchbar">
                 <t t-set="title">Check List</t>
             </t>
-            
+
             <div t-if="not is_emp" class="alert alert-warning mt8" role="alert">
                 Sorry You are not allowed to use this section.
             </div>
@@ -218,7 +237,7 @@
                             </div>
                             <div class="form-group">
                                 <label class="col-form-label h4dd" for="tech_applicant_talent_level">Skill Level</label>
-                                
+
                                 <select name="tech_applicant_talent_level" t-attf-class="form-control">
                                     <option value="">Select Your Level...</option>
                                     <t t-foreach="levels_lst or []" t-as="levelst">

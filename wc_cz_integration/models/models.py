@@ -29,7 +29,7 @@ class HIRINGRequests(models.Model):
         ##############################################################################
         # Date
         CURR_DATE = datetime.today().strftime('%Y/%m/%d')
-        CURR_DATE = '2021/01/20'
+        CURR_DATE = '2021/03/23'
         # Category
         CATEGORY = "1"
         # URL Params Concatunate 
@@ -46,7 +46,7 @@ class HIRINGRequests(models.Model):
         conn = http.client.HTTPSConnection("recruitment-api.rayacx.com")
         payload = ''
         #Headers 
-        headers = {'Authorization': 'Bearer UUvQxe3uvXDTMH7lriK6le0IeLkw3hkZC7Kn_eErH6o2SROhFAXj2TKR-bwYZ3O0OCoc7x08LHYdPxyk8VkO_5t3tLHoJoJzEj_AswoDDazBwdqhAZ2q6t2rw1Jvn9ytMC5lCd8KHbfdbvWoj-_X79Fkzm-mL9PRu_LWpC6vjssExpAWtT_EePWcD3zQPYIISelMaGA0XE-z3n291ZMAoA'}
+        headers = {'Authorization': 'Bearer VVQNKoXiDgrvfKAZ2iefWpcJ3GWjq4H0way8GlvtWeYqlD890bHYzFs-jyRPH8iew1Oio-E7Yw8qiloFfvej7mEW2ZSoOoyrHKTldJM1cGIYWNGosLGUClBPNFoRlaybVDpPvDxgm5yC41Tqffwb56m8VpgtbuvX-JVI-XSoXIS1iNMQNnoPkr8KE-WN2GoF9jFx5cW6i8xROLv7RXIJNw'}
         ##############################################################################
         # Request Access Endpoint Calling
         ##############################################################################
@@ -83,7 +83,7 @@ class HIRINGRequests(models.Model):
                 if job_category:
                     if job_category == "talent":
                         job_category="Talent Acq"
-                EXIST_OBJ =  self.env['hiring.request'].search([('CZID','=',str(i['hiringRequestID']))])
+                EXIST_OBJ =  self.env['hiring.request'].search([('CZID','=',str(i['hiringRequestID']))],limit=1)
                 #Exist Object
                 if EXIST_OBJ:
                     # Writ Existing Hiring Request
@@ -99,9 +99,10 @@ class HIRINGRequests(models.Model):
                         "total_females":str(i['totalFemales']),
                         "batch_numbers":str(i['batchNumber'])
                         })
+                    EXIST_OBJ.update_lines()
                 else:
                     # Create Hiring Request
-                    self.create({
+                    res = self.create({
                             "CZID":str(i['hiringRequestID']),
                             "name":str(i['hiringRequestID']),
                             "category":job_category,
@@ -114,6 +115,7 @@ class HIRINGRequests(models.Model):
                             "batch_numbers":str(i['batchNumber'])
                             #"center":
                         })
+                    res.update_lines()
 
 #class EmployeesKPI(models.Model):
 #    _inherit = 'employee_kpi_data'
@@ -129,7 +131,7 @@ class EmployeesHR(models.Model):
     def UpdateApplicantStatus(self):
         conn = http.client.HTTPSConnection("recruitment-api.rayacx.com")
         
-        headers = {'Authorization': 'Bearer UUvQxe3uvXDTMH7lriK6le0IeLkw3hkZC7Kn_eErH6o2SROhFAXj2TKR-bwYZ3O0OCoc7x08LHYdPxyk8VkO_5t3tLHoJoJzEj_AswoDDazBwdqhAZ2q6t2rw1Jvn9ytMC5lCd8KHbfdbvWoj-_X79Fkzm-mL9PRu_LWpC6vjssExpAWtT_EePWcD3zQPYIISelMaGA0XE-z3n291ZMAoA'}
+        headers = {'Authorization': 'Bearer VVQNKoXiDgrvfKAZ2iefWpcJ3GWjq4H0way8GlvtWeYqlD890bHYzFs-jyRPH8iew1Oio-E7Yw8qiloFfvej7mEW2ZSoOoyrHKTldJM1cGIYWNGosLGUClBPNFoRlaybVDpPvDxgm5yC41Tqffwb56m8VpgtbuvX-JVI-XSoXIS1iNMQNnoPkr8KE-WN2GoF9jFx5cW6i8xROLv7RXIJNw'}
         refid = "11"
         is_egyption = "true"
         if self.nationality.id == 65:
@@ -151,24 +153,26 @@ class hrApplicant(models.Model):
     passport_id = fields.Char("Passport ID")
     CZID = fields.Integer("Connect Zone Employee ID")
     CZHRID = fields.Integer("Connect Zone Employee ID")
-#
-#    @api.onchange('training_start_date')
-#    def UpdateApplicantStatus(self):
-#        conn = http.client.HTTPSConnection("recruitment-api.rayacx.com")
-        
-#        headers = {'Authorization': 'Bearer UUvQxe3uvXDTMH7lriK6le0IeLkw3hkZC7Kn_eErH6o2SROhFAXj2TKR-bwYZ3O0OCoc7x08LHYdPxyk8VkO_5t3tLHoJoJzEj_AswoDDazBwdqhAZ2q6t2rw1Jvn9ytMC5lCd8KHbfdbvWoj-_X79Fkzm-mL9PRu_LWpC6vjssExpAWtT_EePWcD3zQPYIISelMaGA0XE-z3n291ZMAoA'}
-#        refid = "11"
-#       is_egyption = "true"
-#        if self.nationality.id == 65:
-#            refid = self.national_id
-#        else:
-#            refid = self.passport_id
-#            is_egyption = "false"
-#        hiring_date = self.training_start_date
-#            
-#        payload = "IsEgyption="+is_egyption+"&RefId="+refid+"&Hiringdate="+hiring_date    
-#        conn.request("POST", "/api/cz/UpdateApplicantStatus?IsEgyption=true&RefId=15236555&Hiringdate=2017-08-01", payload, headers)
-#        res = conn.getresponse()
-#        data = res.read()
-#        print(data.decode("utf-8"))
-        
+
+    @api.onchange('stage_id')
+    def UpdateApplicantStatus(self):
+        if self.stage_id.is_final:
+            conn = http.client.HTTPSConnection("recruitment-api.rayacx.com")
+            payload = ''
+            headers = {
+              'Authorization': 'Bearer uFAvbiQfbJXtZQN_X-HPvMEjYy87k5YzupCN2pMX_nXt0KSyG__R4EXvlFXMJWmeOUoCuEzvGas08-6L7A0gOgM2s9UFSjN99eJ0VP5OzAbZTDn0o6XwOAlMwhsOvigJbTSDDyhZtdnnP1zflFsFK_IUaf_YS4ZDStGcvBtG-hN8t0xMtddRdX4_mBCpBwheMPwuU_yAsDMG8Z0F2jIYuw'
+            }
+            refid = "11"
+            is_egyption = "true"
+            if self.nationality.id == 65:
+                refid = self.national_id
+            else:
+                refid = self.passport_id
+                is_egyption = "false"
+                
+            conn.request("GET", "/api/cz/CheckEmpStatus/?RefId="+refid+"&IsEgyption="+is_egyption, payload, headers)
+            res = conn.getresponse()
+            data = res.read()
+            
+            self.create_employee_from_applicant()
+            print(data.decode("utf-8"))

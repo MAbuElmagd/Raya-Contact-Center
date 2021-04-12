@@ -22,6 +22,100 @@ AVAILABLE_PRIORITIES = [
     ('2', 'Very Good'),
     ('3', 'Excellent')
 ]
+class bulkonboarding(models.Model):
+    _name='onboarding.bulk'
+
+    name=fields.Char(string="Title",required=True)
+    employees=fields.Many2many('hr.employee',string='Employees')
+    user_id=fields.Many2one('res.users',compute='_compute_user',tracking=True, store=True, readonly=False)
+    is_draft=fields.Boolean(default=True)
+    is_in_progress=fields.Boolean(default=False)
+    created=fields.Boolean(default=False)
+    @api.depends('name')
+    def _compute_user(self):
+        for applicant in self:
+            applicant.user_id = self.env.uid
+
+    def start_onboarding(self):
+        onboardings=self.env['onboarding.onboarding'].search([('bulk_id','=',self.id)])
+        for onboarding in onboardings:
+            onboarding.stage_id = self.env['onboarding.stage'].search([('in_progress','=',True)])[0].id
+        self.is_draft=False
+        self.is_in_progress=True
+
+    def create_onboardings(self):
+        self.created=True
+        if self.employees:
+            for employee in self.employees:
+                plan_id=False
+                if employee.job_id:
+                    palns_positions = employee.env['onboarding.plans'].search([('application_on','=','position')])
+                    if palns_positions:
+                        for plan in palns_positions:
+                            if plan.position_ids:
+                                for value in plan.position_ids:
+                                    if employee.job_id.id == value.id:
+                                        plan_id=plan.id
+                    palns_grades = employee.env['onboarding.plans'].search([('application_on','=','grade')])
+                    if palns_grades:
+                        for plan in palns_grades:
+                            if plan.grade_ids:
+                                for value in plan.grade_ids:
+                                    if employee.job_id.employee_grade.id == value.id:
+                                        plan_id=plan.id
+                self.env['onboarding.onboarding'].create({
+                    'name':self.name+" - "+employee.name,
+                    'employee_id':employee.id,
+                    'user_id' : employee.user_id.id,
+                    'email' : employee.work_email,
+                    'job_id' : employee.job_id.id,
+                    'bulk_id':self.id,
+                    'onboarding_plan':plan_id
+                })
+                self.env['onboarding.onboarding'].search([('name','=',self.name+" - "+employee.name,)]).update_checklist_data()
+
+    # @api.model
+    # def create(self, vals):
+    #     res = super(bulkonboarding, self).create(vals)
+    #     res.created=True
+    #     if res.employees:
+    #         for employee in res.employees:
+    #             res.env['onboarding.onboarding'].create({
+    #                 'name':res.name+" - "+employee.name,
+    #                 'employee_id':employee.id,
+    #                 'user_id' : employee.user_id.id,
+    #                 'email' : employee.work_email,
+    #                 'job_id' : employee.job_id.id,
+    #                 'bulk_id':res.id
+    #             })
+    #     return res
+
+    def unlink(self):
+        for this in self:
+            if this:
+                raise UserError(
+                    _('you can not delete this record.')
+                )
+        return super(bulkonboarding, self).unlink()
+
+    def send_email(self):
+        # self.ensure_one()
+
+        ir_model_data = self.env['ir.model.data']
+        onboardings=self.env['onboarding.onboarding'].search([('bulk_id','=',self.id)])
+        template_id = ir_model_data.get_object_reference('wc_onboarding', 'email_template_onboarding')[1]
+        for onboarding in onboardings:
+            if onboarding.is_email:
+                self.env['mail.template'].browse(template_id).send_mail(onboarding.id)
+        
+    def online_share(self):
+        ir_model_data = self.env['ir.model.data']
+        onboardings=self.env['onboarding.onboarding'].search([('bulk_id','=',self.id)])
+        template_id = ir_model_data.get_object_reference('wc_onboarding', 'email_template_online_onboarding')[1]
+        for onboarding in onboardings:
+            if onboarding.is_online_share:
+                self.env['mail.template'].browse(template_id).send_mail(onboarding.id)
+
 
 
 class OnboardingOnboarding(models.Model):
@@ -33,9 +127,65 @@ class OnboardingOnboarding(models.Model):
     stage_id = fields.Many2one('onboarding.stage',string="Project", tracking=True,
                                compute='_compute_stage', store=True, readonly=False,copy=False, index=True,group_expand='_read_group_stage_ids')
     meeting_count = fields.Integer('Meeting',compute='_compute_meeting')
+
+    is_shared=fields.Boolean(compute='compute_online_shared')
+    bulk_id=fields.Many2one('onboarding.bulk')
+    targeted_partners = fields.Many2many('res.partner','partner_ass_rel', compute="_compute_targeted_partners")
+
+    def unlink(self):
+        for this in self:
+            if this.is_done:
+                raise UserError(
+                    _('you can not delete this record.')
+                )
+        return super(OnboardingOnboarding, self).unlink()
+
+    def mass_send_email(self):
+        for onboarding in self:
+            if onboarding.is_in_progress:
+                ir_model_data = self.env['ir.model.data']
+                template_id = ir_model_data.get_object_reference('wc_onboarding', 'email_template_onboarding')[1]
+                if onboarding.is_email:
+                    self.env['mail.template'].browse(template_id).send_mail(onboarding.id)
+        
+    def mass_online_share(self):
+        for onboarding in self:
+            if onboarding.is_in_progress:
+                ir_model_data = self.env['ir.model.data']
+                template_id = ir_model_data.get_object_reference('wc_onboarding', 'email_template_online_onboarding')[1]
+                if onboarding.is_online_share:
+                    self.env['mail.template'].browse(template_id).send_mail(onboarding.id)
+
+    @api.onchange('stage_id')
+    def double_onboarding_check(self):
+        for this in self:
+            if this.is_in_progress:
+                lines=this.env['onboarding.onboarding'].search([('employee_id','=',this.employee_id.id),('is_in_progress','=',True)])
+                # for line in lines:
+                if len(lines)>=1:
+                    raise UserError(_('the same person can not have more than one onboarding in progress.'))
+
+    @api.onchange('emp_id','manager')
+    def _compute_targeted_partners(self):
+        for this in self:
+            this.targeted_partners = False
+            ids = []
+            ids.append(this.user_id.partner_id.id)
+            if this.bulk_id:
+                ids.append(this.bulk_id.user_id.partner_id.id)
+            if len(ids) > 0:
+                this.targeted_partners = [(6,0,ids)]
+                
+    def compute_online_shared(self):
+        if self.is_online_share or self.is_grade_6 or self.is_options:
+            self.is_shared=True
+        else:
+            self.is_shared=False
+
     @api.depends('meeting_id')
     def _compute_meeting(self):
         self.meeting_count = self.env['calendar.event'].search_count([('onboarding_id','=',self.id)])
+
     @api.model
     def _read_group_stage_ids(self, stages, domain, order):
         search_domain = []
@@ -62,7 +212,7 @@ class OnboardingOnboarding(models.Model):
     email = fields.Char()
     job_id = fields.Many2one('hr.job')
 
-    onboarding_plan = fields.Many2one('onboarding.plans')
+    onboarding_plan = fields.Many2one('onboarding.plans')#,compute='update_onboarding_plan')
 
     # application_on = fields.Selection([('grade','Grade '),('position','Position')], related="onboarding_plan.application_on")
     # grade_ids = fields.Many2many('employee.grade','onboarding_grade_rel','onboarding_id','grade_id')
@@ -104,6 +254,7 @@ class OnboardingOnboarding(models.Model):
 
     meeting_id = fields.Many2one('calendar.event', string="Meeting", readonly=True)
     meeting_date=fields.Datetime('Meeting Date',compute='compute_meeting_date')
+
     def compute_meeting_date(self):
         line=self.env['calendar.event'].search([('id','=',self.meeting_id.id)])[-1]
         self.meeting_date=line.start
@@ -117,7 +268,13 @@ class OnboardingOnboarding(models.Model):
             record.attachment_number = attach_data.get(record.id, 0)
 
     def start_onboarding(self):
-        self.stage_id = self.env['onboarding.stage'].search([('in_progress','=',True)])[0].id
+        for this in self:
+            lines=this.env['onboarding.onboarding'].search([('employee_id','=',this.employee_id.id),('is_in_progress','=',True)])
+            # for line in lines:
+            if len(lines)>=1:
+                raise UserError(_('the same person can not have more than one onboarding in progress.'))
+            elif this.is_draft:
+                this.stage_id = this.env['onboarding.stage'].search([('in_progress','=',True)])[0].id
 
     @api.onchange('employee_id')
     def update_user_data(self):
@@ -128,25 +285,28 @@ class OnboardingOnboarding(models.Model):
 
     @api.onchange('job_id')
     def update_onboarding_plan(self):
-        if self.job_id:
-            self.onboarding_plan = False
+        for this in self:
+            if this.job_id:
+                this.onboarding_plan = False
 
-            palns_positions = self.env['onboarding.plans'].search([('application_on','=','position')])
-            if palns_positions:
-                for plan in palns_positions:
-                    if plan.position_ids:
-                        for value in plan.position_ids:
-                            if self.job_id.id == value.id:
-                                self.onboarding_plan = plan
+                palns_positions = this.env['onboarding.plans'].search([('application_on','=','position')])
+                if palns_positions:
+                    for plan in palns_positions:
+                        if plan.position_ids:
+                            for value in plan.position_ids:
+                                if this.job_id.id == value.id:
+                                    this.onboarding_plan = plan
 
 
-            palns_grades = self.env['onboarding.plans'].search([('application_on','=','grade')])
-            if palns_grades:
-                for plan in palns_grades:
-                    if plan.grade_ids:
-                        for value in plan.grade_ids:
-                            if self.job_id.employee_grade.id == value.id:
-                                self.onboarding_plan = plan
+                palns_grades = this.env['onboarding.plans'].search([('application_on','=','grade')])
+                if palns_grades:
+                    for plan in palns_grades:
+                        if plan.grade_ids:
+                            for value in plan.grade_ids:
+                                if this.job_id.employee_grade.id == value.id:
+                                    this.onboarding_plan = plan
+            if this.onboarding_plan:
+                this.update_checklist_data()
 
     @api.onchange('onboarding_plan')
     def update_checklist_data(self):
@@ -161,7 +321,7 @@ class OnboardingOnboarding(models.Model):
             if self.onboarding_plan.grade_6_ids:
                 lines = []
                 for line in self.onboarding_plan.grade_6_ids:
-                    vals = (0, 0, {'name': line.name,})
+                    vals = (0, 0, {'name': line.name.id,})
                     lines.append(vals)
 
                 self.grade_6_ids = lines
@@ -170,7 +330,7 @@ class OnboardingOnboarding(models.Model):
                 lines = []
                 for line in self.onboarding_plan.entry_checklist_ids:
                     vals = (0, 0, {
-                                    'name': line.name,
+                                    'name': line.name.id,
                                     'type':line.type,
                                     })
                     lines.append(vals)
@@ -638,8 +798,6 @@ class Onboarding(models.Model):
             )
 
 
-
-
 class OnboardingMeetingClone(models.Model):
     _name = 'onboarding.meeting.clone.onboarding'
     _description = 'Raya Onboarding Plans Meetings'
@@ -675,7 +833,7 @@ class MeetingDate(models.TransientModel):
         'duration':1,
         'stop':self.start_date + timedelta(hours=1),
         'onboarding_id':task_obj.id,
-        'partner_ids':task_obj.user_id.partner_id,
+        'partner_ids':[(6,0,task_obj.targeted_partners.ids)],
         'res_model':'onboarding.onboarding',
         'res_model_id':self.env['ir.model'].search([('model','=','onboarding.onboarding')]).id,
         'res_id':task_obj.id

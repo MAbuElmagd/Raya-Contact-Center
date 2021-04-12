@@ -43,6 +43,8 @@ class WebsiteHrRecruitment(http.Controller):
 
         # List jobs available to current UID
         domain = request.website.website_domain()
+        domain.append(('name','ilike',kwargs.get('search')))
+        print(domain)
         job_ids = Jobs.search(domain, order="is_published desc, no_of_recruitment desc").ids
         # Browse jobs as superuser, because address is restricted
         jobs = Jobs.sudo().browse(job_ids)

@@ -95,13 +95,9 @@
                       <field name="skill_id" readonly="1" force_save="1"/>
                     </group>
                   </group>
-
-
-
-
                   <group>
                     <group>
-                    <field name="excel_line_ids" nolabel="1" widget="many2many">
+                    <field name="excel_line_ids" readonly="1" force_save="1" nolabel="1" widget="many2many">
                     <tree editable="bottom" create="false"  delete="false">
                         <field name="question" readonly="1" force_save="1"/>
                         <field name="mark" readonly="1" force_save="1" sum="mark"/>

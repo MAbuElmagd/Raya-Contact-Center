@@ -1,0 +1,226 @@
+ <odoo>
+   <!-- <data noupdate="1"> -->
+
+
+   <!-- </data> -->
+    <data>
+      <record id="email_template_tech_notify" model="mail.template">
+        <field name="name">Notification: Technical Interview Applications</field>
+        <field name="model_id" ref="base.model_res_users"></field>
+        <field name="email_to">${object.email |safe}</field>
+        <field name="technical_interview_notification">True</field>
+        <!-- <field name="email_cc">${object.manager.work_email |safe}</field>                              -->
+        <field name="subject"> Notification: Technical Interview Applications</field>
+        <field name="body_html" type="html">
+          <div style="margin: 0px; padding: 0px;">
+             Dear ${object.name},
+             <p>
+                <br/><br/>
+                You can find the current technical interview applications in the table below.<br/>
+           </p>
+             <table>
+                <tbody>
+                   % for line in object.partner_id.technical_interview_applications:
+                   <tr>
+                      <td>${line.name}</td>
+                                  <td>${line.national_id}</td>
+                      <br/>
+                   </tr>
+                   % endfor
+                </tbody>
+             </table>
+            <br/>
+
+                      Thank you,
+                      % if object.signature:
+                          <br />
+                          ${object.signature | safe}
+                      % endif
+                    </div>
+        </field>
+      </record>
+      <record id='notify_tech' model='ir.cron'>
+                  <field name='name'>Technical Interview Notification</field>
+                  <field name='model_id' ref='hr_recruitment.model_hr_applicant'/>
+                  <field name='state'>code</field>
+                  <field name='code'>
+                  model.notify_technical_interview()
+                  </field>
+                  <field name='interval_number'>1</field>
+                  <field name='interval_type'>days</field>
+                  <field name='numbercall'>-1</field>
+                  <field name="priority">0</field>
+                  <field name="doall" eval="True"/>
+                  <field name="nextcall" eval="(datetime.now() + timedelta(days=0)).strftime('%Y-%m-%d 21:59:59')" />
+                  <field name="user_id" ref="base.user_root" />
+                  <field name="active" eval="True"/>
+              </record>
+
+      <template id="applicants" name="Jobs">
+          <t t-call="website.layout">
+              <div id="wrap" class="o_website_hr_recruitment_jobs_list bg-100">
+                  <div class="oe_structure">
+                      <section class="pt48 pb32 bg-200">
+                          <div class="container">
+                              <div class="row">
+                                  <div class="col-lg-12 text-center">
+                                      <h2 class="h1 text-secondary">Your Technical Enterviews</h2>
+                                      <h3 class="text-muted">As a technical interviewer, we need your support with these applications!</h3>
+                                      <p>
+                                          Those are the applications that needs your help to finish the technical interview for!
+                                          Please Choose one and and start editing, Have a good day!
+                                      </p>
+                                  </div>
+                              </div>
+                          </div>
+                      </section>
+                  </div>
+
+                  <div class="container oe_website_jobs">
+                      <div class="row pt48 pb48">
+                          <div class="d-none" id="jobs_grid_left">
+
+                          </div>
+                          <div class="col-lg" id="jobs_grid">
+                              <div t-if="not applicants">
+                                  <div class="text-center text-muted">
+                                      <h4>
+                                          There is no applications!, We are good for today
+                                      </h4>
+                                  </div>
+                              </div>
+                              <a t-foreach="applicants" t-as="applicant" t-attf-href="/my/tinterview/detail/#{applicant.id}" t-attf-class="text-decoration-none">
+                                  <div class="card card-default mb32">
+                                      <div class="card-body">
+                                          <h3 class="text-secondary mt0 mb4">
+                                              <span t-field="applicant.name"/>
+                                          </h3>
+                                          <h5 t-if="applicant.partner_name">
+                                              <t t-esc="applicant.partner_name"/>
+                                          </h5>
+                                          <h5 t-if="applicant.job_id">
+                                              <t t-esc="applicant.job_id.name"/>
+                                          </h5>
+                                          <h5 t-if="applicant.project">
+                                              <t t-esc="applicant.project.name"/>
+                                          </h5>
+                                          </div>
+                                      </div>
+                              </a>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </t>
+      </template>
+
+
+
+      <template id="detail" name="Application Detail" track="1">
+          <t t-call="website.layout">
+            <script>
+            function update_url(){
+              document.getElementById('submit_button').href="/tinterview/sub/"+document.getElementById('second_feedback').value+"/"+document.getElementById('second_feedback_reason').value+"/"+document.getElementById('second_interview_description').value+"/"+document.getElementById('id').value;
+            }
+          </script>
+              <t t-set="additional_title">Application Detail</t>
+              <div id="wrap" class="js_hr_recruitment">
+                  <!-- Job name -->
+                  <section class="pb32">
+                      <div class="container">
+                          <div class="mt32">
+                              <h5 t-if="applicant.name">
+                                  Application Subject: <span t-esc="applicant.name"/>
+                              </h5>
+                              <h5 t-if="applicant.partner_name">
+                                  Applicant Name: <t t-esc="applicant.partner_name"/>
+                              </h5>
+                              <h5 t-if="applicant.job_id">
+                                  Applied Job: <t t-esc="applicant.job_id.name"/>
+                              </h5>
+                              <h5 t-if="applicant.project">
+                                  Project: <t t-esc="applicant.project.name"/>
+                              </h5>
+                              <h5>
+                                  Second Interview Feedback:
+                                  <select class="form-select" onchange="update_url();" name="second_feedback" id="second_feedback" required="1">
+                                    <option value="accepted">
+                                        Accepted
+                                    </option>
+                                    <option value="rejected">
+                                        Rejected
+                                    </option>
+                                    <option value="refuse">
+                                        Refuse
+                                    </option>
+                                    <option value="lost_interest">
+                                        Lost Interest
+                                    </option>
+                                    <option value="not_matching_criteria">
+                                        Not Matching Criteria
+                                    </option>
+                                    <option value="no_show">
+                                        No Show
+                                    </option>
+                                  </select>
+                              </h5>
+                              <h5>
+                                  Second Interview Feedback Reason:
+                                  <select class="form-select" onchange="update_url();" name="second_feedback_reason" id="second_feedback_reason" required="1">
+                                    <t t-foreach="feedback_reasons" t-as="item">
+                                      <option t-att-value="item.id">
+                                          <t t-esc="item.name" />
+                                      </option>
+                                    </t>
+                                  </select>
+                              </h5>
+                              <h5>
+                                  Description:
+                                  <input type="text" onchange="update_url();" class="form-control" id="second_interview_description" name="second_interview_description"/>
+                                  <input type="text" class="form-control" style="display:none;" id="id" name="id" t-att-value="applicant.id"/>
+                              </h5>
+                            </div>
+                          </div>
+                  </section>
+                  <div class="oe_structure">
+                      <section class="o_job_bottom_bar mt32 mb32">
+                          <div class="text-center">
+                              <a id="submit_button" role="button" class="btn btn-primary btn-lg">Submit Now!</a>
+                          </div>
+                      </section>
+                  </div>
+              </div>
+          </t>
+      </template>
+
+
+
+      <template id="thankyou" name="Application Updated" track="1">
+          <t t-call="website.layout">
+              <t t-set="additional_title">Application Updated!</t>
+              <div id="wrap" class="js_hr_recruitment">
+                  <!-- Job name -->
+                  <div class="oe_structure">
+                      <section class="pt48 pb32 bg-200">
+                          <div class="container">
+                              <div class="row">
+                                  <div class="col-lg-12 text-center">
+                                      <h2 class="h1 text-secondary">Your Technical Enterview Answers Is Now On The Application</h2>
+                                      <h3 class="text-muted">Thank You!</h3>
+                                  </div>
+                              </div>
+                          </div>
+                      </section>
+                  </div>
+                  <div class="oe_structure">
+                      <section class="o_job_bottom_bar mt32 mb32">
+                          <div class="text-center">
+                              <a id="submit_button" href="/my/home" role="button" class="btn btn-primary btn-lg">My Account!</a>
+                          </div>
+                      </section>
+                  </div>
+              </div>
+          </t>
+      </template>
+    </data>
+</odoo>

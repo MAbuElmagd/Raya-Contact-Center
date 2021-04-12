@@ -1,5 +1,16 @@
 <odoo>
   <data>
+    <record id="view_mail_add_hold" model="ir.ui.view">
+              <field name="name">view_mail_add_hold</field>
+              <field name="model">mail.template</field>
+              <field name="inherit_id" ref="mail.email_template_form"/>
+              <field name="arch" type="xml">
+                <field name="model_id" position="after">
+                  <field name="quality_hold_notification"/>
+                </field>
+
+              </field>
+      </record>
     <record id="view_job_form2" model="ir.ui.view">
               <field name="name">hr.job.form</field>
               <field name="model">hr.job</field>

@@ -42,13 +42,8 @@ class HrEmployee(models.Model):
 
     raya_team = fields.Boolean()
     hr_id = fields.Char("HR ID", required=True)
-    identification_id = fields.Char(string="National ID", required=True ,size=14)
-    @api.constrains('identification_id')
-    def _constrains_identification_id(self):
-        if self.identification_id:
-            id_length = len(self.identification_id.replace(" ", ""))
-            if id_length != 14 or not self.identification_id.isnumeric() or len(self.search([('identification_id','=',self.identification_id),('id', '!=', self.id)])) > 0:
-                raise ValidationError(_('National ID Shoud Be 14, Numeric Only & Unique!'))
+    job_category_n_c = fields.Selection([('talent','Talent'),('operational','Operational')])
+
     @api.constrains('hr_id')
     def _constrains_hr_id(self):
         if self.hr_id:
@@ -109,6 +104,12 @@ class HrRecruitmentStage(models.Model):
 class hrApplicant(models.Model):
     _inherit = "hr.applicant"
 
+    # @api.constrains('hiring_request')
+    # def constrain_source_type(self):
+    #     lines=self.env['hiring.request'].search([('id','=',self.hiring_request)])
+    #     if  self.emp_id:
+    #         raise UserError(_('You can only apply for External Hinring request !'))
+
     created_employee = fields.Boolean()
 
     @api.onchange('emp_id')
@@ -133,7 +134,19 @@ class hrApplicant(models.Model):
                         'date_start':app.released_date,
                         'description':app.emp_id.company_id.name or '',
                     })
-                    
+
+    @api.constrains('hiring_request')
+    def check_employ_type(self):
+        employee=self.env['hr.employee'].search([('identification_id','=',self.national_id)])
+        if len(employee)>0 and (self.hiring_request.sourceing_type=='external'):
+             raise UserError(
+                    _('This applicant is not allowed to apply for this Hirring request')
+                )
+        elif len(employee)==0 and (self.hiring_request.sourceing_type=='internal'):
+             raise UserError(
+                    _('This applicant is not allowed to apply for this Hirring request')
+                )
+
 
     def send_transfer_form_ta(self):
         if not self.emp_id or not self.emp_id.address_home_id:
@@ -321,16 +334,13 @@ class hiringRequest(models.Model):
                 raise UserError(_('Please Choose Department First'))
             else:
                 raise UserError(_('Please Choose Center First'))
-    @api.onchange('center')
-    def check_project_first(self):
-        print("################################################")
-        print(self.center)
-        print(not self.project)
-        print("################################################")
-        if self.center and not self.project:
-            raise UserError(_('Please Choose Project First'))
+    # @api.onchange('center')
+    # def check_project_first(self):
+    #     if self.center and not self.project:
+    #         raise UserError(_('Please Choose Project First'))
 
-    sourceing_type = fields.Selection([('internal','Internal'),('external','External')], string="Type")
+    sourceing_type = fields.Selection([('internal','Internal'),('external','External'),('both','Both')], string="Type")
+
     @api.onchange('sourceing_type')
     def chng_sourceing_type(self):
         if self.sourceing_type == 'external':

@@ -251,7 +251,7 @@
             <header>
                 <button name="%(open_wizard_action_id)d" type="action" string="Assessment Invite" class="oe_highlight" attrs="{'invisible':['|',('readonly_user','=',True),('in_progress','!=',True)]}"/>
                 <!-- <button name="action_send_assessment_meeting_email" string="Share Document" class="oe_highlight" type="object" attrs="{'invisible':['|','|',('readonly_user','=',True),('in_progress','!=',True),('meeting_count','=',0)]}"></button> -->
-                <button name="action_send_survey" class="oe_highlight" string="Send Test" type="object" attrs="{'invisible':['|','|',('readonly_user','=',True),('in_progress','!=',True),('answer_id','!=',False)]}"></button>
+                <button name="action_send_survey" class="oe_highlight" string="Send Test" type="object" attrs="{'invisible':['|','|','|',('has_assessment_test','!=',True),('readonly_user','=',True),('in_progress','!=',True),('answer_id','!=',False)]}"></button>
                 <button name="action_print_answers" class="oe_highlight" string="Print" type="object" attrs="{'invisible':[('answer_id','=',False)]}"/>
                 <field name="stage_id" widget="statusbar" options="{'clickable': '1', 'fold_field': 'fold'}" attrs="{'invisible': [('active', '=', False),('emp_id', '=', False)],'readonly':[('readonly_user','=',True)]}"/>
                 <field name="readonly_user" invisible="1"/>

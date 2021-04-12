@@ -3,94 +3,88 @@
 from odoo import api, fields, models, tools
 
 
-        
+
 class qoh_report(models.Model):
     _name = 'wc_raya_qoh.report'
     _description = 'wc_raya_qoh.report'
     _auto = False
 
     id=fields.Integer()
-    x_tower=fields.Char(string="Tower")
-    x_working_location = fields.Char("Working Location")
-    x_sector = fields.Char("Sector")
-    x_partner_id = fields.Char("Contact")
-    x_project = fields.Char("Project")
-    x_level_name = fields.Char("English level")
-    x_request_id = fields.Char("Request")
-    x_batch = fields.Integer("Batch")
+    x_tower=fields.Many2one('wc_raya_qoh.tower',string="Tower")
+    x_working_location = fields.Many2one('work.locations',string="Site")
+    x_sector = fields.Many2one('sector.sector',string="Sector" )
+    x_partner_id = fields.Many2one("res.partner",string="Contact")
+    x_project = fields.Many2one("rcc.project",string="Project")
+    x_level_name = fields.Many2one('lang.levels',"English level")
+    x_request_id = fields.Many2one("hiring.request",string="Request")
+    x_batch = fields.Integer(string="Batch Numbers")
+    x_month=fields.Char(string="Month")
     x_training_start_date = fields.Date("Training Start Date")
-    x_source_id = fields.Char("Source")
-    x_medium_id = fields.Char("Medium")
+    x_source_id = fields.Many2one("utm.source",string="Source")
+    x_medium_id = fields.Many2one("main.utm.source",string="Main Source")
     x_name = fields.Char("Name")
     x_phone = fields.Char("Phone")
     x_national_id = fields.Char("National ID")
-    x_age = fields.Char("Age")
-    x_faculty = fields.Char("Faculty")
-    x_area_id = fields.Char("Area")
-    x_graduated = fields.Char("Graduation Status")
-    x_hc_date = fields.Date("HC date")
+    x_age = fields.Integer("Age")
+    x_faculty = fields.Many2one("university.fac",string="Faculty")
+    x_area_id = fields.Many2one("city.area",string="Area")
+    x_graduated = fields.Char(string="Graduation Status")
+    x_hc_date = fields.Date("Last HC date")
     x_days = fields.Float("Days")
-    x_qoh = fields.Char("QOH")
-    x_reason_id = fields.Char("Reason")
-
+    x_qoh=fields.Selection([('1','Yes'),('0','No')],string="QOH")
+    x_tarinee_status=fields.Selection([('active','Active'),('dropped','Dropped')],string="Trainee Status")
+    x_reason_id = fields.Many2one("drop.reasons",string="Reason")
+    x_hc_status=fields.Many2one("wc_raya_qoh.hc_status",string="HC Status")
+    x_user_id=fields.Many2one("res.users",string="Assigned Recruiter")
     def init(self):
         """ QOH main report """
         # tools.drop_view_if_exists(self._cr, 'wc_raya_qoh_report')
+
+                   # level.name as x_level_name, ##################################### not ready yet
+
+                   # inner join emp_lang_skills skill on  skill.applicant_id = applicant.id
+                   # inner join lang_levels level on  level.id = skill.applicant_level
+
         self.env.cr.execute('DROP VIEW IF EXISTS wc_raya_qoh_report')
         self.env.cr.execute(""" CREATE VIEW wc_raya_qoh_report AS (
            SELECT row_number() OVER () as id,
-tower.name as x_tower,
-work.name as x_working_location,
-sector.name as x_sector,
-partner_id.name as x_partner_id,
-project.name as x_project,
-level.name as x_level_name,
-request.name as x_request_id,
-request.batch_numbers as x_batch,
-applicant.training_start_date as x_training_start_date,
-source_id.name as x_source_id,
-medium_id.name as x_medium_id,
-applicant.name as x_name,
-applicant.partner_phone as x_phone,
-applicant.national_id as x_national_id,
-applicant.age as x_age,
-fac_id.name as x_faculty,
-area_id.name as x_area_id,
+           applicant.tower as x_tower,
+           applicant.working_location as x_working_location,
+           applicant.sector as x_sector,
+           applicant.partner_id as x_partner_id,
+           applicant.project as x_project,
+           (SELECT levels FROM emp_lang_skills2 WHERE (SELECT name FROM lang_tech WHERE id = emp_lang_skills2.tech_id)= 'English' AND applicant_id=applicant.id) AS x_level_name, 
+           applicant.hiring_request as x_request_id,
+           applicant.batch_numbers as x_batch,
+           split_part(to_char(applicant.training_start_date, 'YYYY MON'),' ', 2) AS x_month,
+           applicant.training_start_date as x_training_start_date,
+           applicant.source_id as x_source_id,
+           applicant.main_source_n_c as x_medium_id,
+           applicant.name as x_name,
+           applicant.partner_phone as x_phone,
+           applicant.national_id as x_national_id,
+           applicant.age as x_age,
+           applicant.faculty as x_faculty,
+           applicant.area as x_area_id,
+                      applicant.user_id as x_user_id,
 CASE WHEN applicant.graduation_status = 'graduated' THEN 'Yes'
-           WHEN applicant.graduation_status = 'notgraduated' THEN 'No' 
+           WHEN applicant.graduation_status = 'notgraduated' THEN 'No'
            Else ''
 END as x_graduated,
-CASE WHEN (applicant.training_start_date > applicant.drop_date) AND (applicant.training_start_date > applicant.quality_of_hiring_date)  THEN applicant.training_start_date 
-           WHEN (applicant.drop_date> applicant.training_start_date ) AND (applicant.drop_date> applicant.quality_of_hiring_date)  THEN applicant.drop_date
-           WHEN (applicant.quality_of_hiring_date> applicant.training_start_date ) AND (applicant.quality_of_hiring_date> applicant.drop_date)  THEN applicant.quality_of_hiring_date
-           
-END as x_hc_date,
-TRUNC(DATE_PART('day', applicant.training_start_date::timestamp - (CASE WHEN (applicant.training_start_date > applicant.drop_date) AND (applicant.training_start_date > applicant.quality_of_hiring_date)  THEN applicant.training_start_date::timestamp
-           WHEN (applicant.drop_date> applicant.training_start_date ) AND (applicant.drop_date> applicant.quality_of_hiring_date)  THEN applicant.drop_date::timestamp
-           WHEN (applicant.quality_of_hiring_date> applicant.training_start_date ) AND (applicant.quality_of_hiring_date> applicant.drop_date)  THEN applicant.quality_of_hiring_date::timestamp END )::timestamp)/7) as x_days,
+applicant.hc_date as x_hc_date,
+TRUNC(DATE_PART('day',(CASE WHEN (applicant.tarinee_status='active') THEN
+            CASE WHEN (applicant.quality_of_hiring_date > CURRENT_DATE)   THEN applicant.training_start_date
+            WHEN (applicant.quality_of_hiring_date < CURRENT_DATE )  THEN applicant.quality_of_hiring_date
+            END
+    WHEN (applicant.tarinee_status='dropped') THEN applicant.drop_date
 
-CASE WHEN (applicant.tarinee_status = 'dropped') THEN 'NO'
-           WHEN (applicant.tarinee_status = 'active') AND (applicant.quality_of_hiring_date::timestamp  > NOW()::timestamp ) THEN 'YES'     
-           Else ''
-END as x_qoh,
-applicant.tarinee_status,
-reason_id.name as x_reason_id
-
-FROM hr_applicant applicant 
-inner join hiring_request request on request.id = applicant.hiring_request
-inner join wc_raya_qoh_tower tower on tower.id = request.tower
-inner join work_locations work on work.id = request.working_location
-inner join sector_sector sector on sector.id = request.sector
-inner join res_users user_id on user_id.id = applicant.user_id
-inner join res_partner partner_id on partner_id.id = user_id.partner_id 
-inner join rcc_project project on project.id = request.project
-inner join utm_source source_id on source_id.id = applicant.source_id
-inner join utm_medium medium_id on medium_id.id = applicant.medium_id
-inner join university_fac fac_id on fac_id.id=applicant.faculty 
-inner join city_area area_id on area_id.id=applicant.area
-inner join drop_reasons reason_id on reason_id.id=applicant.drop_reason
-inner join emp_lang_skills skill on  skill.applicant_id = applicant.id
-inner join lang_levels level on  level.id = skill.applicant_level and applicant.job_category = 'operational'
+END-applicant.training_start_date::timestamp))) as x_days,
+applicant.qoh as x_qoh,
+applicant.tarinee_status as x_tarinee_status,
+applicant.drop_reason as x_reason_id,
+applicant.hc_status as x_hc_status
+FROM hr_applicant applicant
+WHERE applicant.job_category = 'operational' and applicant.active=True and applicant.joined_training='yes'
         )""")
 
 class drp_report(models.Model):
@@ -100,26 +94,27 @@ class drp_report(models.Model):
 
     id = fields.Integer()
     x_dropout_reason=fields.Char("Drop out reason")
+    x_sector = fields.Many2one('sector.sector',string="Sector" )
+    x_project = fields.Many2one("rcc.project",string="Project")
+    x_reason_id = fields.Many2one("drop.reasons",string="Reason")
 
     def init(self):
         """ QOH main report """
         self.env.cr.execute('DROP VIEW IF EXISTS wc_raya_qoh_reason')
-        self.env.cr.execute(""" 
+        self.env.cr.execute("""
         CREATE VIEW wc_raya_qoh_reason AS (
         SELECT row_number() OVER () as id,
 
          CASE WHEN applicant.drop_reason IS Not NULL THEN 'Reached'
             Else 'unreachable'
-         END as x_dropout_reason
- 
-         From hr_applicant applicant 
+         END as x_dropout_reason,
+           applicant.sector as x_sector,
+           applicant.drop_reason as x_reason_id,
+           applicant.project as x_project
 
-where applicant.job_category='operational'
+         From hr_applicant applicant
+
+where applicant.job_category='operational' and applicant.active=True and applicant.tarinee_status= 'dropped'
 
         );
         """)
-        
-
-
-
-

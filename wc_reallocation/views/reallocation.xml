@@ -1,0 +1,173 @@
+<odoo>
+  <data>
+
+
+    <record model="ir.ui.view" id="reallocation_reason_view_list">
+      <field name="name">Reallocation reasons</field>
+      <field name="model">reallocation.reason</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="reallocation_reason_view_form">
+        <field name="name">Reallocation reasons</field>
+        <field name="model">reallocation.reason</field>
+        <field name="arch" type="xml">
+            <form string="Reallocation reasons">
+              <sheet>
+                <group>
+                  <group>
+                    <field name="name"/>
+                  </group>
+                </group>
+              </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="reallocation_reason_action_window_form_action">
+        <field name="name">Reallocation reasons</field>
+        <field name="res_model">reallocation.reason</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context"></field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+            Click to start add new Reallocation reasons.
+          </p>
+        </field>
+    </record>
+
+    <!-- menu categories -->
+    <menuitem name="Reallocation reasons" id="reallocation_reason_menu" parent="hr_recruitment.menu_hr_recruitment_configuration"
+      action="reallocation_reason_action_window_form_action"/>
+
+    <record model="ir.ui.view" id="reallocation_view_list">
+      <field name="name">Reallocation</field>
+      <field name="model">reallocation.reallocation</field>
+      <field name="arch" type="xml">
+        <tree>
+          <field name="name"/>
+          <field name="employee"/>
+          <field name="state"/>
+          <field name="terminated" />
+          <field name="reallocation_approved"/>
+
+        </tree>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="reallocation_view_form">
+        <field name="name">Reallocation</field>
+        <field name="model">reallocation.reallocation</field>
+        <field name="arch" type="xml">
+            <form string="Reallocation">
+              <header>
+                <button name="approve_reallocation" string="Approve Reallocation" class="oe_highlight" type="object" attrs="{'invisible':[('state','!=','draft')]}" groups="jt_update_profiles.system_recruitment_engagement_team"/>
+                <button name="create_application" string="Create Application" class="oe_highlight" type="object" attrs="{'invisible':['|',('state','!=','approved'),('application_id','!=',False)]}" groups="jt_update_profiles.system_recruitment_engagement_team"/>
+                <button name="terminate_employment" string="Terminate Employment" type="object" attrs="{'invisible':[('state','!=','draft')]}" groups="jt_update_profiles.system_recruitment_engagement_team"/>
+
+                 <field name="state" widget="statusbar" statusbar_visible="draft,approved,terminate"/>
+              </header>
+              <sheet>
+                <group>
+                  <group>
+                    <field name="name" attrs="{'readonly':[('state','!=','draft')]}"/>
+                    <field name="employee" attrs="{'readonly':[('state','!=','draft')]}"/>
+                  </group>
+                </group>
+                <group>
+                  <group>
+                    <field name="department_id"  readonly="1" force_save="1"/>
+                    <field name="project_id"  readonly="1" force_save="1"/>
+                    <field name="manager_id"  readonly="1" force_save="1"/>
+                    <field name="reallocation_reason" attrs="{'readonly':[('state','!=','draft')]}"/>
+                  </group>
+                  <group>
+                    <field name="job_id" readonly="1" force_save="1"/>
+                    <field name="hr_id" readonly="1" force_save="1"/>
+                    <field name="application_id" readonly="1" force_save="1"/>
+                    <field name="terminated" readonly="1" force_save="1"/>
+                    <field name="reallocation_approved" readonly="1" force_save="1"/>
+
+                  </group>
+                </group>
+                <group>
+                  <group>
+                    <field name="description" attrs="{'readonly':[('state','!=','draft')]}"/>
+                  </group>
+                </group>
+                <group>
+                  <group>
+                    <field name="job_to" attrs="{'readonly':[('state','!=','draft')]}"/>
+                  </group>
+                  <group>
+                    <field name="project_to" attrs="{'readonly':[('state','!=','draft')]}"/>
+                  </group>
+                </group>
+              </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="reallocation_action_window_form_action">
+        <field name="name">Reallocation</field>
+        <field name="res_model">reallocation.reallocation</field>
+        <field name="view_mode">tree,pivot,form</field>
+        <field name="context"></field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+            Click to start add new Reallocation.
+          </p>
+        </field>
+    </record>
+
+
+    <record id="view_reallocation_hr_applicant_form" model="ir.ui.view">
+			<field name="name">view.reallocation.hr.applicant.form</field>
+			<field name="model">hr.applicant</field>
+			<field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form" />
+			<field name="arch" type="xml">
+      <xpath expr="//header" position="inside">
+        <button name="terminate_employment" string="Terminate Employment" type="object" attrs="{'invisible':['|','|',('is_o_final','=',True),('terminated','=',True),('is_reallocation','!=',True)]}" groups="wc_reallocation.reporting_analyst"/>
+      </xpath>
+        <xpath expr="//group/group[1]" position="inside">
+          <field name="is_reallocation" readonly="1" force_save="1" attrs="{'invisible':[('job_category','=','talent')]}"/>
+          <field name="reallocation_reason" attrs="{'required':[('is_reallocation','=',True)],'invisible':[('job_category','=','talent')]}"/>
+          <field name="reallocation_desc" attrs="{'invisible':[('job_category','=','talent')]}"/>
+          <field name="terminated" readonly="1" force_save="1" attrs="{'invisible':[('job_category','=','talent')]}"/>
+
+        </xpath>
+      </field>
+		</record>
+
+<!-- Enhance -->
+  <record model="ir.ui.view" id="reallocation_test_employee_form">
+            <field name="name">Form view for employee</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form" />
+            <field name="arch" type="xml">
+                <div name="button_box" position="inside">
+                <button type="object" name="action_open_reallocations" class="oe_stat_button" icon="fa-file-text" attrs="{'invisible': [('reallocation_count', '=', 0)]}">
+              <field name="reallocation_count" string="Reallocations" widget="statinfo"></field>
+            </button>
+                </div>
+                 <xpath expr="//header" position="inside">
+<button name="create_reallocation" string="Reallocation" type="object" class="oe_highlight" groups="wc_reallocation.reporting_analyst" attrs="{'invisible':[('job_category','!=','operational')]}"/>
+                </xpath>
+                <field name='job_id' position='after'>
+                <field name='job_category' />
+                </field>
+            </field>
+            </record>
+<record id="action_create_reallocation" model="ir.actions.server">
+        	<field name="name">Reallocation</field>
+            <field name="type">ir.actions.server</field>
+        	<field name="model_id" ref="hr.model_hr_employee" />
+        	<field name="state">code</field>
+                 <field name="code">action=records.create_reallocation()</field>                                        
+    	</record>
+  </data>
+</odoo>

@@ -29,10 +29,91 @@ class Departments(models.Model):
         if len(self.projects) > 0 and self.raya_department:
             self.projects = False
 
+class Employee(models.Model):
+    _inherit = "hr.employee"
+
+    already_approved = fields.Boolean(compute="_compute_already_approved", default=False)
+    def _compute_already_approved(self):
+        for this in self:
+            if this._context.get('o2m_active_model') == 'hiring.request':
+                active_model = self._context.get('o2m_active_model')
+                active_id = self._context.get('o2m_active_id')
+                if active_model and active_id:
+                    hiring_request = self.env[active_model].browse(active_id)
+                    if this.id in hiring_request.users_who_approved.ids:
+                        this.already_approved = True
+                    else:
+                        this.already_approved = False
+                else:
+                    this.already_approved = False
+            else:
+                this.already_approved = False
+
+class MailTemplate(models.Model):
+    _inherit = "mail.template"
+
+    hiring_request_approvers_notify = fields.Boolean()
+    @api.constrains('hiring_request_approvers_notify')
+    def _constrains_hiring_request_approvers_notify(self):
+        for rec in self:
+            mail = self.search([('hiring_request_approvers_notify', '=', True),
+                                   ('id', '!=', rec.id)])
+            if mail and rec.hiring_request_approvers_notify:
+                raise UserError(
+                    _('Hiring Request Approvers Norification Template Already Marked in %s.' % mail.name)
+                )
 
 class HiringReq(models.Model):
     _inherit = "hiring.request"
+    remaining_approvers = fields.Many2many('res.partner','request_approvers_partner_rel','hr_id','partner_id', compute="_compute_remaining_approvers")
+    def _compute_remaining_approvers(self):
+        for this in self:
+            hiring_request_approvers = this.hiring_request_approvers.ids
+            users_who_approved = this.users_who_approved.ids
+            remaining_emps = []
+            for approver in hiring_request_approvers:
+                if approver in users_who_approved:
+                    pass
+                else:
+                    remaining_emps.append(approver)
+            if this.department_gm_approval_required and not this.department_approved:
+                remaining_emps.append(this.dept_director.id)
+            partners_ids = []
+            for emplo in self.env['hr.employee'].browse(remaining_emps):
+                partners_ids.append(emplo.address_home_id.id)
+            this.remaining_approvers = [(6,0,partners_ids)] or False
+            # if len(this.remaining_partners) <= 0:
+            #     this.remaining_partners = False
 
+
+    def send_approvals_notify(self):
+        self.ensure_one()
+        ir_model_data = self.env['ir.model.data']
+        try:
+            template_id = ir_model_data.get_object_reference('wc_sourcing_extension', 'email_template_approvals_notify')[1]
+        except ValueError:
+            template_id = False
+        try:
+            compose_form_id = ir_model_data.get_object_reference('mail', 'email_compose_message_wizard_form')[1]
+        except ValueError:
+            compose_form_id = False
+        ctx = {
+            'default_use_template': bool(template_id),
+            'default_template_id': template_id,
+            'default_composition_mode': 'comment',
+            'force_email': True,
+            'default_partner_ids':[(6,0,self.remaining_approvers.ids)]
+        }
+        return {
+            'type': 'ir.actions.act_window',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'mail.compose.message',
+            'views': [(compose_form_id, 'form')],
+            'view_id': compose_form_id,
+            'target': 'new',
+            'context': ctx,
+        }
 
     users_who_approved = fields.Many2many('hr.employee','already_approved_rel')
 
@@ -78,23 +159,31 @@ class HiringReq(models.Model):
             if this.dept_director.id == current_user_emp_id:
                 this.is_dept_director = True
     can_approve = fields.Boolean(compute="_compute_can_approve")
+    can_approve_n_c = fields.Boolean()
     def _compute_can_approve(self):
         for this in self:
             current_user_emp_id = this.env.user.employee_id.id
             this.can_approve = False
+            this.can_approve_n_c = False
             if len(this.hiring_request_approvers.filtered(lambda x:x.id == current_user_emp_id)) > 0:
                 this.can_approve = True
+                this.can_approve_n_c = True
             if this.is_dept_director:
                 this.can_approve = True
+                this.can_approve_n_c = True
     already_approved = fields.Boolean(compute="_compute_already_approved")
+    already_approved_n_c = fields.Boolean()
     def _compute_already_approved(self):
         for this in self:
             current_user_emp_id = this.env.user.employee_id.id
             this.already_approved = False
+            this.already_approved_n_c = False
             if len(this.users_who_approved.filtered(lambda x:x.id == current_user_emp_id)) > 0:
                 this.already_approved = True
+                this.already_approved_n_c = True
             if this.dept_director.id == current_user_emp_id and this.department_approved:
                 this.already_approved = True
+                this.already_approved_n_c = True
 
     job_id = fields.Many2one(
         'hr.job', 'HR Job Position')
@@ -160,7 +249,7 @@ class HiringReq(models.Model):
                     founded_emps = self.env['hr.employee'].browse(list_emps)
                     founded_emps_jobs = founded_emps.mapped('job_id')
                     if len(required) != len(founded_emps_jobs):
-                        raise UserError(_('Company dose not have sufficient employees for required jobs'))
+                        raise UserError(_(' There are no eligible Employee/s as Approvers for this Type, please check the approval matrix for this Type (%s) !' % this.hiring_request_type.name))
                     if len(list_emps) <= 0:
                         this.hiring_request_approvers = False
                     else:
@@ -244,7 +333,19 @@ class hrrecruitmentsourceEXT(models.Model):
     project = fields.Many2one('rcc.project',required=True)
     hiring_request = fields.Many2one('hiring.request',string="Hiring Request")
     recruiter = fields.Many2one('res.users',string="Recruiter",)
-
+    @api.depends('source_id', 'source_id.name', 'job_id')
+    def _compute_url(self):
+        for this in self:
+            this._change_url()
+        # base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        # for source in self:
+        #     source.url = urls.url_join(base_url, "%s?%s" % (source.job_id.website_url,
+        #         urls.url_encode({
+        #             'utm_campaign': self.env.ref('hr_recruitment.utm_campaign_job').name,
+        #             'utm_medium': self.env.ref('utm.utm_medium_website').name,
+        #             'utm_source': source.source_id.name
+        #         })
+        #     ))
     @api.depends('job_id')
     def _get_current_user(self):
         for r in self:
@@ -252,8 +353,8 @@ class hrrecruitmentsourceEXT(models.Model):
 
     @api.onchange('hiring_request','recruiter')
     def _change_project(self):
-        for r in self:
-            r.recruiter = self.env.user
+        # for r in self:
+        #     r.recruiter = self.env.user
         self.project = self.hiring_request.project
 
     @api.onchange('project','hiring_request','recruiter')
@@ -264,10 +365,10 @@ class hrrecruitmentsourceEXT(models.Model):
                 urls.url_encode({
                     'utm_campaign': self.env.ref('hr_recruitment.utm_campaign_job').name,
                     'utm_medium': self.env.ref('utm.utm_medium_website').name,
+                    'utm_source': source.source_id.name,
                     'utm_project':self.project.id,
                     'utm_hiring_request':self.hiring_request.id,
                     'recruiter':self.recruiter.id,
-                    'utm_source': source.source_id.name
                 })
             ))
 
@@ -283,7 +384,6 @@ class hrJobEXT(models.Model):
                 for hr in this.hiring_request_many.filtered(lambda x:x.state == 'approved'):
                     no_of_recruitment += hr.total_heads
                 this.no_of_recruitment = no_of_recruitment
-                print(no_of_recruitment)
         return res
     @api.onchange('job_category')
     def chng_job_category(self):
@@ -295,7 +395,7 @@ class hrJobEXT(models.Model):
 
 class HrApplicant(models.Model):
     _inherit = 'hr.applicant'
-
+    recruiter = fields.Many2one('res.users')
     job_category = fields.Selection([('talent','Talent Aqcusiotion'),('operational','Operational')],string="Job Category")
     stage_id = fields.Many2one('hr.recruitment.stage', 'Stage', ondelete='restrict', tracking=True,
                                compute='_compute_stage', store=True, readonly=False,

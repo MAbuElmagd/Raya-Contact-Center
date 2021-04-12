@@ -30,12 +30,12 @@
     'live_test_url': 'http://white-code.co.uk/',
     'contributors': ['Ahmad Nabeel <anabil@white-code.co.uk>'],
     'website': 'http://white-code.co.uk/',
-    'depends': ['base','hr_recruitment','hr'],
+    'depends': ['base','hr_recruitment','hr','wc_hiring_request','wc_raya_updates2'],
     'data': [
         #'views/update_profile_template.xml',
         'views/views.xml',
         #'views/warning_wizard.xml',
-        #'ir.model.access.csv'
+        'ir.model.access.csv'
 
     ],
     'license': 'AGPL-3',

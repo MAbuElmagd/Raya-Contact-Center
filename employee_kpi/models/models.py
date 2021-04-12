@@ -94,7 +94,7 @@ class employee_kpi_data(models.Model):
     year_selection,required=True,
     string="Year",
     default="2021", 
-)
+ )
     kpi=fields.Integer(string="KPI")
     quartile=fields.Many2one('kpi_category',compute="pick_quartile")
     note=fields.Text(string="Note")
@@ -136,8 +136,34 @@ class RecruitmentStage(models.Model):
     is_initial=fields.Boolean(string="TA Initial",default=False)
     is_final=fields.Boolean(string="Final Stage",default=False)
 
+    is_o_initial=fields.Boolean(string="Operational Initial",default=False)
+    is_o_final=fields.Boolean(string="Operational Final",default=False)
+
 class hr_recruitment_botoom_refuse(models.Model):
     _inherit='hr.applicant'
+    is_o_initial=fields.Boolean(string="Operational Initial",default=False,compute="check_o_initial_stage_state")
+    is_o_final=fields.Boolean(string="Operational Final",default=False,compute="check_o_fianl_stage_state")
+
+    def check_o_initial_stage_state(self):
+        if self.stage_id.is_o_initial:
+            self.is_o_initial=True
+        else:
+            self.is_o_initial=False
+    def check_o_fianl_stage_state(self):
+        if self.stage_id.is_o_final:
+            self.is_o_final=True
+        else:
+            self.is_o_final=False
+
+    @api.onchange('stage_id')
+    def check_o_stage_state(self):
+        if self.stage_id.is_o_initial:
+            self.is_o_initial=True
+        elif self.stage_id.is_o_final:
+            self.is_o_final=True
+        else:
+            self.is_o_initial=False
+            self.is_o_final=False
 
     applicant_quartile_type=fields.Selection([('top','TOP Quartile'),('median','Median Quartile'),('bottom','Bottom Quartile')],compute='pick_applicant_quartile_type',store=True)
     @api.onchange('emp_id')

@@ -34,11 +34,11 @@
                     <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form" />
                     <field name="arch" type="xml">
                         <xpath expr="//header" position="inside">
-                          <button name="action_send_survey" type="object" string="Send Dropped Survey" attrs="{'invisible':[('dropped_answer_id','!=',False)]}"/>
+                          <button name="action_send_survey" type="object" string="Send Dropped Survey" attrs="{'invisible':['|',('tarinee_status','!=','dropped'),('dropped_answer_id','!=',False)]}"/>
                         </xpath>
                         <field name="joined_training" position="after">
-                          <field name="trainer_id" attrs="{'invisible':[('joined_training','!=','yes')],'readonly':[('tarinee_status','!=',False)]}"/>
-                          <field name="training_session" attrs="{'invisible':[('joined_training','!=','yes')],'readonly':[('tarinee_status','!=',False)]}"/>
+                          <field name="trainer_id" force_save="1" attrs="{'invisible':[('joined_training','!=','yes')],'readonly':[('tarinee_status','!=',False)]}"/>
+                          <field name="training_session" force_save="1" attrs="{'invisible':[('joined_training','!=','yes')],'readonly':[('tarinee_status','!=',False)]}"/>
                         </field>
                         <field name="tarinee_status" position="after">
 
@@ -52,10 +52,10 @@
 
   <record id="tree_whyv_report" model="ir.ui.view">
                     <field name="name">tree_whyv_report</field>
-                    <field name="model">survey.user_input.line</field>
+                    <field name="model">we_hear_your_voice.report</field>
                     <field name="arch" type="xml">
                     <tree>
-                      <field name="create_date"/>
+                      <field name="timestamp_date"/>
                       <field name="applicant_id"/>
                       <field name="project_id"/>
                       <field name="applicant_number"/>
@@ -65,22 +65,20 @@
                       <field name="question_id"/>
                       <field name="value_text_box"/>
                       <field name="suggested_answer_id"/>
-                        <!-- <field name="question_id"> -->
-
                     </tree>
                     </field>
                 </record>
 
       <record id="action_whyv_report" model="ir.actions.act_window">
       <field name="name">We Hear Your Voice</field>
-      <field name="res_model">survey.user_input.line</field>
-      <field name="view_mode">tree,pivot</field>
+      <field name="res_model">we_hear_your_voice.report</field>
+      <field name="view_mode">tree</field>
       <field name="view_id" ref="tree_whyv_report"/>
-      <field name="domain">[('dropped_survey','=',True)]</field>
-      <!-- <field name="context">{'group_by': 'applicant_id'}</field> -->
+      <field name="context">{'group_by': 'applicant_id'}</field>
       </record>
 
-      <menuitem name="We Hear Your Voice" id="menu_report_whyv" action="action_whyv_report"/>
+      <menuitem name="Reporting" sequence="100" id="menu_reporting" parent="survey.menu_surveys"/>
+      <menuitem name="We Hear Your Voice" id="menu_report_whyv" parent="menu_reporting" action="action_whyv_report"/>
 
   </data>
 </odoo>

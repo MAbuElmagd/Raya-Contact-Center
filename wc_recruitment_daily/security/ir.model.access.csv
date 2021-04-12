@@ -1,2 +1,2 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_wc_recruitment_daily_report,wc_recruitment_daily.report,model_wc_recruitment_daily_report,base.group_user,1,1,1,1
+access_wc_recruitment_daily_report,wc_recruitment_daily.report,model_wc_recruitment_daily,base.group_user,1,1,1,1

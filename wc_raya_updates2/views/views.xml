@@ -29,17 +29,17 @@
      </field>
      </record>
      <record model="ir.ui.view" id="religion_info_form_view">
-     <field name="name">Religion</field>
-     <field name="model">applicant_religion</field>
-     <field name="arch" type="xml">
-         <form string="Religion">
-           <sheet>
-               <group>
-                 <field name="name"/>
-               </group>
-           </sheet>
-         </form>
-     </field>
+      <field name="name">Religion</field>
+      <field name="model">applicant_religion</field>
+      <field name="arch" type="xml">
+          <form string="Religion">
+            <sheet>
+                <group>
+                  <field name="name"/>
+                </group>
+            </sheet>
+          </form>
+      </field>
      </record>
 
     <!-- Top menu item -->
@@ -68,6 +68,9 @@
 			<field name="arch" type="xml">
       <xpath expr="//field[@name='project']" position="after">
         <field name="tower"/>
+        <field name="working_location"/>
+        <field name="sector"/>
+        <field name="batch_numbers"/>
       </xpath>
           </field>
           </record>
@@ -101,6 +104,9 @@
          </form>
      </field>
      </record>
+    
+
+    
      <!--  menu item -->
 <menuitem name="Tower" id="tower_menu" parent="hr_recruitment.menu_hr_recruitment_configuration"
               action="tower_info" />

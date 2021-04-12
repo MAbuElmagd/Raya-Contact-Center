@@ -58,7 +58,7 @@ class HrApplicantAPI(models.Model):
             
             conn = http.client.HTTPSConnection("recruitment-api.rayacx.com")
             payload = ''
-            headers = {'Authorization': 'Bearer uFAvbiQfbJXtZQN_X-HPvMEjYy87k5YzupCN2pMX_nXt0KSyG__R4EXvlFXMJWmeOUoCuEzvGas08-6L7A0gOgM2s9UFSjN99eJ0VP5OzAbZTDn0o6XwOAlMwhsOvigJbTSDDyhZtdnnP1zflFsFK_IUaf_YS4ZDStGcvBtG-hN8t0xMtddRdX4_mBCpBwheMPwuU_yAsDMG8Z0F2jIYuw'}
+            headers = {'Authorization': 'Bearer W9OUSNrAOWDlZlYWoKOHSB9OTGdszSKobtdwoaqduEaOuct9ykv4EiIfpe0hsFVYge-4Y_INQ4tfKj0sCsO4uOaBsbOkud9FLNpzhlnI_nFCXL7ILHdVh8no3IRkLaRI1cgP1z4HK2qoCytXMo66o04NYpvlb-PtdtCzt32oETjRugNZEQwuMk2-kf3h3FsFj9vKvXsuGwGG5LH5ay9S5A'}
             conn.request("GET", "/api/cz/GetKPI?IsEgyptian="+is_egyption+"&RefId="+national_id+"&DateFrom="+date_from+"&DateTo="+date_to, payload, headers)
             ress = conn.getresponse()
             data = ress.read()
@@ -67,18 +67,11 @@ class HrApplicantAPI(models.Model):
             
             if dict_data:
                 for i in dict_data:
-                    if str(i["kpi"]):
-                        kpi_average += float(str(i["kpi"]))
-                        
-                        print("########## Return API #############")
-                        print("KPI IS:")
-                        print(i["kpi"])
-                        print("KPI PERIOD:")
-                        print(i["period"])
-                        print("Year : ")
-                        print(i["year"])
-                        print("Quartile : ")
-                        print(i["quartile"])
+                    try:
+                        if str(i["kpi"]):
+                            kpi_average += float(str(i["kpi"]))
+                    except:
+                        pass
                 kpi_average = kpi_average/300
                 print("KPI Average")
                 print("KPI Average")
@@ -126,7 +119,7 @@ class HrApplicantAPI(models.Model):
                 #KPI
                 conn = http.client.HTTPSConnection("recruitment-api.rayacx.com")
                 payload = ''
-                headers = {'Authorization': 'Bearer uFAvbiQfbJXtZQN_X-HPvMEjYy87k5YzupCN2pMX_nXt0KSyG__R4EXvlFXMJWmeOUoCuEzvGas08-6L7A0gOgM2s9UFSjN99eJ0VP5OzAbZTDn0o6XwOAlMwhsOvigJbTSDDyhZtdnnP1zflFsFK_IUaf_YS4ZDStGcvBtG-hN8t0xMtddRdX4_mBCpBwheMPwuU_yAsDMG8Z0F2jIYuw'}
+                headers = {'Authorization': 'Bearer W9OUSNrAOWDlZlYWoKOHSB9OTGdszSKobtdwoaqduEaOuct9ykv4EiIfpe0hsFVYge-4Y_INQ4tfKj0sCsO4uOaBsbOkud9FLNpzhlnI_nFCXL7ILHdVh8no3IRkLaRI1cgP1z4HK2qoCytXMo66o04NYpvlb-PtdtCzt32oETjRugNZEQwuMk2-kf3h3FsFj9vKvXsuGwGG5LH5ay9S5A'}
                 conn.request("GET", "/api/cz/GetEmpHeadcount?IsEgyptian="+is_egyption+"&RefId="+national_id, payload, headers)
                 ress = conn.getresponse()
                 data = ress.read()
@@ -174,7 +167,7 @@ class HrApplicantAPI(models.Model):
                             
             conn = http.client.HTTPSConnection("recruitment-api.rayacx.com")
             payload = ''
-            headers = {'Authorization': 'Bearer uFAvbiQfbJXtZQN_X-HPvMEjYy87k5YzupCN2pMX_nXt0KSyG__R4EXvlFXMJWmeOUoCuEzvGas08-6L7A0gOgM2s9UFSjN99eJ0VP5OzAbZTDn0o6XwOAlMwhsOvigJbTSDDyhZtdnnP1zflFsFK_IUaf_YS4ZDStGcvBtG-hN8t0xMtddRdX4_mBCpBwheMPwuU_yAsDMG8Z0F2jIYuw'}
+            headers = {'Authorization': 'Bearer W9OUSNrAOWDlZlYWoKOHSB9OTGdszSKobtdwoaqduEaOuct9ykv4EiIfpe0hsFVYge-4Y_INQ4tfKj0sCsO4uOaBsbOkud9FLNpzhlnI_nFCXL7ILHdVh8no3IRkLaRI1cgP1z4HK2qoCytXMo66o04NYpvlb-PtdtCzt32oETjRugNZEQwuMk2-kf3h3FsFj9vKvXsuGwGG5LH5ay9S5A'}
             
             conn.request("GET", "/api/cz/CheckBlackliste?IsEgyptian="+is_egyption+"&RefId="+national_id+"&DateFrom="+date_from+"&DateTo="+date_to, payload, headers)
             ress = conn.getresponse()
@@ -197,7 +190,7 @@ class HrApplicantAPI(models.Model):
             if emp:            
                 conn = http.client.HTTPSConnection("recruitment-api.rayacx.com")
                 payload = ''
-                headers = {'Authorization': 'Bearer uFAvbiQfbJXtZQN_X-HPvMEjYy87k5YzupCN2pMX_nXt0KSyG__R4EXvlFXMJWmeOUoCuEzvGas08-6L7A0gOgM2s9UFSjN99eJ0VP5OzAbZTDn0o6XwOAlMwhsOvigJbTSDDyhZtdnnP1zflFsFK_IUaf_YS4ZDStGcvBtG-hN8t0xMtddRdX4_mBCpBwheMPwuU_yAsDMG8Z0F2jIYuw'}
+                headers = {'Authorization': 'Bearer W9OUSNrAOWDlZlYWoKOHSB9OTGdszSKobtdwoaqduEaOuct9ykv4EiIfpe0hsFVYge-4Y_INQ4tfKj0sCsO4uOaBsbOkud9FLNpzhlnI_nFCXL7ILHdVh8no3IRkLaRI1cgP1z4HK2qoCytXMo66o04NYpvlb-PtdtCzt32oETjRugNZEQwuMk2-kf3h3FsFj9vKvXsuGwGG5LH5ay9S5A'}
                 conn.request("GET", "/api/cz/GetEmpMisconduct?IsEgyptian="+is_egyption+"&RefId="+national_id, payload, headers)
                 ress = conn.getresponse()
                 data = ress.read()
@@ -273,12 +266,14 @@ class HrApplicantAPI(models.Model):
             res.black_listed = False
             res.partner_id.blacklisted = False
 
-        stage_line=self.env['hr.recruitment.stage'].search([('job_category','=','talent'),('is_initial','=',True)],limit=1)
-        res.stage_id=stage_line.id
-        print("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD")
-        print("RES")
-        print(res)
-        print("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD")
+        if res.job_category=='talent':
+            stage_line=self.env['hr.recruitment.stage'].search([('job_category','=','talent'),('is_initial','=',True)],limit=1)
+            res.stage_id=stage_line.id
+        elif res.job_category=='operational':
+            stage_line=self.env['hr.recruitment.stage'].search([('job_category','=','operational'),('is_o_initial','=',True)],limit=1)
+            res.stage_id=stage_line.id
+        if not res.job_id.user_id:
+            res.user_id = 1
         return res
         
     @api.onchange('stage_id')

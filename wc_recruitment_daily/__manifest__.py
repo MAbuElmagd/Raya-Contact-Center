@@ -21,17 +21,19 @@
 
     # any module necessary for this one to work correctly
     # sql_request_abstract
-    'depends': ['base','hr','hr_recruitment','wc_ta_extention','wc_hiring_request'],
+    'depends': ['base','hr','hr_recruitment','report_xlsx'],
 
     # always loaded
     'data': [
         'security/ir.model.access.csv',
-        'views/views.xml',
-        'views/templates.xml',
+        # 'views/views.xml',
+        # 'views/templates.xml',
+        'reports/report.xml',
+        'reports/report_daily_tracker.xml',
     ],
     # only loaded in demonstration mode
     'demo': [
         'demo/demo.xml',
     ],
-    "uninstall_hook": "uninstall_hook",
+    # "uninstall_hook": "uninstall_hook",
 }

@@ -8,6 +8,10 @@ from datetime import timedelta
 
 class HrEmployee(models.Model):
     _inherit = 'hr.job'
+    job_code = fields.Integer('Job Code')
+    _sql_constraints = [
+        ('unique_job_code', 'unique (job_code)', 'Job Code already exists!')
+    ]
     job_category = fields.Selection([('talent','Talent Aqcusiotion'),('operational','Operational')],string="Job Category")
 
 
@@ -63,11 +67,11 @@ class EmployeeTechSkills(models.Model):
     levels = fields.Selection([('basic', 'Basic'),
                                ('medium', 'Medium'),
                                ('advance', 'Advance')], 'Levels')
-    applicant_level = fields.Selection([('basic', 'Basic'),
-                               ('medium', 'Medium'),
-                               ('advance', 'Advance')], 'Applicant Level')
-    employee_level = fields.Many2one('hr.skill.level', 'Employee Level', readonly=True)
-    validation_date = fields.Date('Validation Date', readonly=True)
+    # applicant_level = fields.Selection([('basic', 'Basic'),
+    #                            ('medium', 'Medium'),
+    #                            ('advance', 'Advance')], 'Applicant Level')
+    # employee_level = fields.Many2one('hr.skill.level', 'Employee Level', readonly=True)
+    # validation_date = fields.Date('Validation Date', readonly=True)
 
 class MainSource(models.Model):
     _name = 'main.utm.source'
@@ -86,10 +90,14 @@ class EmployeeTechSkills(models.Model):
     applicant_id = fields.Many2one('hr.applicant', 'applicant')
     employee_id = fields.Many2one('hr.job', 'Job')
     levels = fields.Many2one('lang.levels', 'Levels')
-    applicant_level = fields.Many2one('lang.levels', 'Applicant Level')
+    # applicant_level = fields.Many2one('lang.levels', 'Applicant Level')
+    pronunciation = fields.Integer('Pronunciation')
+    grammer = fields.Integer('Grammer')
+    fluency = fields.Integer('Fluency')
+    understanding_vocab = fields.Integer('Understanding & Vocab')
 
-    employee_level = fields.Many2one('hr.skill.level', 'Employee Level', readonly=True)
-    validation_date = fields.Date('Validation Date', readonly=True)
+    # employee_level = fields.Many2one('hr.skill.level', 'Employee Level', readonly=True)
+    # validation_date = fields.Date('Validation Date', readonly=True)
 
 class TechTech(models.Model):
     _name = 'lang.tech'
@@ -129,14 +137,14 @@ class EmployeeNonTechSkills(models.Model):
                                ('advance', '3'),
                                ('4_advance', '4'),
                                ('5_advance', '5')], 'Levels')
-    applicant_level = fields.Selection([('basic', '1'),
-                               ('medium', '2'),
-                               ('advance', '3'),
-                               ('4_advance', '4'),
-                               ('5_advance', '5')], 'Applicant Level')
-
-    employee_level = fields.Many2one('hr.skill.level', 'Employee Level', readonly=True)
-    validation_date = fields.Date('Validation Date', readonly=True)
+    # applicant_level = fields.Selection([('basic', '1'),
+    #                            ('medium', '2'),
+    #                            ('advance', '3'),
+    #                            ('4_advance', '4'),
+    #                            ('5_advance', '5')], 'Applicant Level')
+    #
+    # employee_level = fields.Many2one('hr.skill.level', 'Employee Level', readonly=True)
+    # validation_date = fields.Date('Validation Date', readonly=True)
 
 class NontechNontech(models.Model):
     _name = 'nontech.nontech'
@@ -210,6 +218,19 @@ class CertCert(models.Model):
 class HrApplicant(models.Model):
     _inherit = 'hr.applicant'
 
+
+
+    main_source = fields.Many2one('main.utm.source',compute="compute_main_source", stored=True)
+    main_source_n_c=fields.Many2one('main.utm.source', stored=True)
+
+    def compute_main_source(self):
+        for this in self:
+            if this.source_id:
+                this.main_source= this.source_id.main_source.id
+            else:
+                this.main_source = False
+            this.main_source_n_c=this.main_source
+
     prev_work_experience_what = fields.Char(string="What is your Previous work Experience?",attrs="{'required':[('prev_work_experience','=','Yes')],'invisible':[('prev_work_experience','!=','Yes')]}")
 
     why_leave = fields.Char(string="Why do you want to leave your work?",attrs="{'required':[('prev_work_experience','=','Yes')],'invisible':[('prev_work_experience','!=','Yes')]}")
@@ -276,8 +297,6 @@ class HrTalent(models.Model):
             }
     @api.onchange('skill_id')
     def _update_levels_domain(self):
-        print(self.skill_type_id.name)
-        print(self.skill_id.name)
 
         if self.skill_level_id.id == False:
             if self.skill_type_id.id and self.skill_id.id:
@@ -297,9 +316,6 @@ class HrTalent(models.Model):
                 result = self._cr.fetchall()
                 for value in result:
                     ids.append(value[0])
-
-                print("in the method to end")
-                print("in the method to end")
 
                 return {
                     'domain': {
@@ -339,8 +355,6 @@ class HrTalent(models.Model):
 
     @api.onchange('skill_id')
     def _update_levels_domain(self):
-        print(self.skill_type_id.name)
-        print(self.skill_id.name)
 
         if self.skill_level_id.id == False:
             if self.skill_type_id.id and self.skill_id.id:
@@ -361,9 +375,6 @@ class HrTalent(models.Model):
                 for value in result:
                     ids.append(value[0])
 
-                print("in the method to end")
-                print("in the method to end")
-                print("in the method to end")
 
                 return {
                     'domain': {
@@ -374,6 +385,30 @@ class HrTalent(models.Model):
 
 class HrTalent(models.Model):
     _name = 'hr.skill.clone.applicant'
+
+
+    @api.onchange('skill_id')
+    def techskill_applicant_level_get(self):
+        for row in self:
+            if row.skill_id:
+                if not row.skill_type_id:
+                    row.skill_type_id = row.skill_id.skill_type_id.id
+                row.applicant_tech_talent_id._update_domains(row)
+    @api.onchange('skill_id')
+    def nontech_applicant_level_get(self):
+        for row in self:
+            if row.skill_id:
+                if not row.skill_type_id:
+                    row.skill_type_id = row.skill_id.skill_type_id.id
+                row.applicant_non_tech_talent_id._update_domains(row)
+    @api.onchange('skill_id')
+    def language_applicant_level_get(self):
+        for row in self:
+            if row.skill_id:
+                if not row.skill_type_id:
+                    row.skill_type_id = row.skill_id.skill_type_id.id
+                row.applicant_lang_talent_id._update_domains(row)
+
 
     skill_type_id = fields.Many2one('hr.skill.type')
     skill_id = fields.Many2one('hr.skill')
@@ -417,8 +452,6 @@ class HrTalent(models.Model):
             }
     @api.onchange('skill_id')
     def _update_levels_domain(self):
-        print(self.skill_type_id.name)
-        print(self.skill_id.name)
 
         if self.skill_level_id.id == False:
             if self.skill_type_id.id and self.skill_id.id:
@@ -438,9 +471,6 @@ class HrTalent(models.Model):
                 result = self._cr.fetchall()
                 for value in result:
                     ids.append(value[0])
-
-                print("in the method to end")
-                print("in the method to end")
 
                 return {
                     'domain': {
@@ -466,10 +496,185 @@ class HrApplicant(models.Model):
         'employee.profession.job', 'partner_id', 'Professional Experience')
 
 
+class Sector(models.Model):
+    _inherit = 'sector.sector'
+
+    sector_projects_type = fields.Selection([('banking','Banking'),('etisalat','Etisalat'),('non_etisalat','Non-Etisalat')],string="Sector Projects Type")
+
 class HrApplicant(models.Model):
     _inherit = 'hr.applicant'
+    # def sql_help(self):
+    #     self.env.cr.execute('DROP TABLE x_wc_recruitment_daily_report_sql')
+    #     self.env.cr.execute(""" CREATE TABLE x_wc_recruitment_daily_report_sql AS (
+    #     select  row_number() OVER () as id,
+    #     applicant.id as applicant_id,
+	# 	applicant.create_date as x_create_date,
+	#   	applicant.job_code as x_job_code,
+	# 	applicant.partner_name as x_applicant_name,
+	# 	applicant.partner_phone as x_phone,
+	# 	applicant.national_id as x_national_id,
+	# 	applicant.nationality as x_nationality,
+	# 	applicant.gender as x_gender,
+	# 	applicant.age as x_age,
+	# 	applicant.state as x_governorate,
+	# 	applicant.area as x_city_area,
+	# 	applicant.military_status as x_military_status,
+	# 	applicant.graduation_status as x_graduation_status,
+	# 	applicant.university as x_university,
+	# 	applicant.faculty as x_faculty,
+	# 	applicant.social_insurance as x_social_insurance,
+	# 	applicant.email_from as x_email,
+	# 	applicant.pc_laptop as x_pc_laptop,
+	# 	applicant.internet_con as x_internet_con,
+	# 	applicant.con_speed as x_con_speed,
+	# 	applicant.internet_provider as x_internet_provider,
+	# 	applicant.indebendancy as x_indebendancy,
+	# 	applicant.prev_work_experience as x_prev_work_experience,
+	# 	applicant.prev_work_experience_what as x_prev_work_experience_what,
+	# 	applicant.why_leave as x_why_leave,
+	# 	applicant.why_join as x_why_join,
+	# 	applicant.salary_expections as x_salary_expections,
+	# 	applicant.rotational_shifts as x_relational_shifts,
+	# 	applicant.english_status as x_english_level,
+	# 	applicant.worked_4_raya as x_worked_4_raya,
+	# 	applicant.ready_work_from_home as x_ready_work_from_home,
+	# 	applicant.operating_sys as x_operating_sys,
+	# 	applicant.main_source as x_main_source,
+	# 	applicant.source_id as x_source,
+	# 	applicant.hr_interviwe_date as x_hr_interviwe_date,
+	# 	applicant.user_id as x_recruiter,
+	# 	applicant.sales_experience as x_sales_experience,
+	# 	applicant.years_of_experience as x_years_of_experience,
+	# 	applicant.first_interview_feedback as x_first_interview_feedback,
+	# 	applicant.first_interview_feedback_reason as x_first_interview_feedback_reason,
+	# 	applicant.sector as x_sector,
+	# 	applicant.project as x_project,
+	# 	applicant.second_interview_feedback as x_second_interview_feedback,
+	# 	applicant.second_interview_feedback_reason as x_second_interview_feedback_reason,
+	# 	applicant.english_test_result as x_english_test_result,
+	# 	applicant.typing_test_result as x_typing_test_result,
+	# 	CASE WHEN applicant.job_offer_feedback = 'accepted' THEN 'Yes'
+    #      ELSE 'No' END AS x_job_offer_feedback,
+	# 	applicant.date_of_signing as x_date_of_signing,
+	# 	applicant.job_offer_feedback_reason as x_job_offer_feedback_reason,
+	# 	applicant.hired as x_hired,
+	# 	applicant.date_of_hiring as x_date_of_hiring,
+	# 	applicant.reason_if_not_hired as x_reason_if_not_hired,
+	# 	applicant.sector_projects_type as x_sector_projects_type
+	# 	from hr_applicant applicant
+	# 	where job_category = 'operational' and active = true
+    #     order by applicant_id asc
+    #     );""")
+    #     non_technical = self.env['nontech.nontech'].search([])
+    #     for non in non_technical:
+    #         col_name = non.name.lower().replace(' ','_').replace('-','_').replace('&','').replace("'","").replace('__','_')
+    #         self.env.cr.execute('ALTER TABLE x_wc_recruitment_daily_report_sql ADD COLUMN IF NOT EXISTS '+col_name+' VARCHAR;')
+    #         applicants_data = self.env['emp.nontech.skills'].search([('nontech_id','=',non.id)], order="applicant_id asc")
+    #         for applicant_non in applicants_data:
+    #             if applicant_non.applicant_id.id:
+    #                 level = "null"
+    #                 if applicant_non.applicant_level == 'basic':
+    #                     level = "'1'"
+    #                 elif applicant_non.applicant_level == 'medium':
+    #                     level = "'2'"
+    #                 elif applicant_non.applicant_level == 'advance':
+    #                     level = "'3'"
+    #                 elif applicant_non.applicant_level == '4_advance':
+    #                     level = "'4'"
+    #                 elif applicant_non.applicant_level == '5_advance':
+    #                     level = "'5'"
+    #                 self.env.cr.execute('UPDATE x_wc_recruitment_daily_report_sql SET '+col_name+' = '+level+' WHERE applicant_id = '+str(applicant_non.applicant_id.id)+';')
+    #     #####################################################################################################################################################################
+    #     technical = self.env['tech.tech'].search([])
+    #     for tec in technical:
+    #         col_name = tec.name.lower().replace(' ','_').replace('-','_').replace('&','').replace("'","").replace('__','_')
+    #         self.env.cr.execute('ALTER TABLE x_wc_recruitment_daily_report_sql ADD COLUMN IF NOT EXISTS '+col_name+' VARCHAR;')
+    #         applicants_data = self.env['emp.tech.skills'].search([('tech_id','=',tec.id)], order="applicant_id asc")
+    #         for applicant_tec in applicants_data:
+    #             if applicant_tec.applicant_id.id:
+    #                 level = "null"
+    #                 if applicant_tec.applicant_level == 'basic':
+    #                     level = "'Basic'"
+    #                 elif applicant_tec.applicant_level == 'medium':
+    #                     level = "'Medium'"
+    #                 elif applicant_tec.applicant_level == 'advance':
+    #                     level = "'Advance'"
+    #                 self.env.cr.execute('UPDATE x_wc_recruitment_daily_report_sql SET '+col_name+' = '+level+' WHERE applicant_id = '+str(applicant_tec.applicant_id.id)+';')
+    #     #####################################################################################################################################################################
+    #     language = self.env['lang.tech'].search([])
+    #     for lang in language:
+    #         col_name = lang.name.lower().replace(' ','_').replace('-','_').replace('&','').replace("'","").replace('__','_')
+    #         self.env.cr.execute('ALTER TABLE x_wc_recruitment_daily_report_sql ADD COLUMN IF NOT EXISTS '+col_name+' VARCHAR;')
+    #         self.env.cr.execute('ALTER TABLE x_wc_recruitment_daily_report_sql ADD COLUMN IF NOT EXISTS pronunciation VARCHAR;')
+    #         self.env.cr.execute('ALTER TABLE x_wc_recruitment_daily_report_sql ADD COLUMN IF NOT EXISTS grammer VARCHAR;')
+    #         self.env.cr.execute('ALTER TABLE x_wc_recruitment_daily_report_sql ADD COLUMN IF NOT EXISTS fluency VARCHAR;')
+    #         self.env.cr.execute('ALTER TABLE x_wc_recruitment_daily_report_sql ADD COLUMN IF NOT EXISTS understanding_vocab VARCHAR;')
+    #         applicants_data = self.env['emp.lang.skills'].search([('tech_id','=',lang.id)], order="applicant_id asc")
+    #         for applicant_lang in applicants_data:
+    #             if applicant_lang.applicant_id.id:
+    #                 level = "null"
+    #                 if applicant_lang.applicant_level.name:
+    #                     level = "'"+applicant_lang.applicant_level.name+"'"
+    #                 self.env.cr.execute('UPDATE x_wc_recruitment_daily_report_sql SET '+col_name+' = '+level+' WHERE applicant_id = '+str(applicant_lang.applicant_id.id)+';')
+    #                 self.env.cr.execute('UPDATE x_wc_recruitment_daily_report_sql SET pronunciation = '+str(applicant_lang.pronunciation)+' WHERE applicant_id = '+str(applicant_lang.applicant_id.id)+';')
+    #                 self.env.cr.execute('UPDATE x_wc_recruitment_daily_report_sql SET grammer = '+str(applicant_lang.grammer)+' WHERE applicant_id = '+str(applicant_lang.applicant_id.id)+';')
+    #                 self.env.cr.execute('UPDATE x_wc_recruitment_daily_report_sql SET fluency = '+str(applicant_lang.fluency)+' WHERE applicant_id = '+str(applicant_lang.applicant_id.id)+';')
+    #                 self.env.cr.execute('UPDATE x_wc_recruitment_daily_report_sql SET understanding_vocab = '+str(applicant_lang.understanding_vocab)+' WHERE applicant_id = '+str(applicant_lang.applicant_id.id)+';')
+
+
+
+    # def _compute_a90_days_hired(self):
+    #     for this in self:
+    #         emp = this.env['hr.employee'].search([('identification_id','=',this.national_id)])
+    #
+    #         if emp:
+    #             hiring_date = emp.hiring_date
+    #             if hiring_date:
+    #
+    #                 if date.today() >= (hiring_date ++ timedelta(days=90)):
+    #                     if this.tarinee_status != "dropped":
+    #                         this.a90_days_hired = True
+    #                     else:
+    #                         this.a90_days_hired = False
+    #                 else:
+    #                     this.a90_days_hired = False
+    #             else:
+    #                 this.a90_days_hired = False
+    #         else:
+    #             this.a90_days_hired = False
+
+    # def _compute_a50_certified(self):
+    #     for this in self:
+    #         if this.certified:
+    #             this.a50_certified = True
+    #             this.a50_certified_n_c = True
+    #         else:
+    #             this.a50_certified = False
+    #             this.a50_certified_n_c = False
+    #
+    # def _compute_a50a90_days_hired(self):
+    #     for this in self:
+    #         if this.a90_days_hired:
+    #             this.a50a90_days_hired = True
+    #             this.a50a90_days_hired_n_c = True
+    #         else:
+    #             this.a50a90_days_hired = False
+    #             this.a50a90_days_hired_n_c = False
 
     job_category = fields.Selection([('talent','Talent Aqcusiotion'),('operational','Operational')],string="Job Category")
+
+    # certified = fields.Boolean(string="Certified")
+    # a90_days_hired = fields.Boolean(string="90 Days Hired",compute="_compute_a90_days_hired")
+
+    # a50_certified = fields.Boolean(string="50% Certified",compute="_compute_a50_certified", stored=True)
+    # a50a90_days_hired = fields.Boolean(string="50% 90 Days Hired",compute="_compute_a50a90_days_hired", stored=True)
+    agency = fields.Many2one('agency.data',string=" Agency ")
+
+    a50_certified = fields.Selection([('eligible','Eligible'),('not_eligible','Not Eligible')],'50% Certified')
+    a50_certified_payment = fields.Boolean('50% Certified Paid', default = False)
+    a50a90_days_hired = fields.Selection([('eligible','Eligible'),('not_eligible','Not Eligible')],'50% 90 Days Hired')
+    a50a90_days_hired_payment = fields.Boolean('50% 90 Days Hired Paid', default = False)
+
 
     def _tech_val(self):
         val = self.env['hr.skill.type'].search([('skill_type','=','technical')])
@@ -506,7 +711,8 @@ class HrApplicant(models.Model):
         'employee.certification', 'applicant_id', 'Certification')
     profession_ids = fields.One2many(
         'employee.profession.job', 'applicant_id', 'Professional Experience')
-    language_level_ids =  fields.One2many('emp.lang.skills', 'applicant_id', 'Language Level')
+    # language_level_ids =  fields.One2many('emp.lang.skills', 'applicant_id', 'Language Level')
+    language_level_ids =  fields.One2many('emp.lang.skills2', 'applicant_id', 'Language Level')
 
     ######################################################################
     # Talent skills for applicant
@@ -594,23 +800,19 @@ class HrApplicant(models.Model):
 
     ###############new for reports
     #application
-    job_code = fields.Integer('Job Code')
-    _sql_constraints = [
-        ('unique_job_code', 'unique (job_code)', 'Job Code already exists!')
-    ]
+
     years_of_experience = fields.Integer('Years of Experience')
     sales_experience = fields.Selection([('yes','Yes'),('no','No')],string="Sales Experience")
     #feedback
-    date_of_signing = fields.Datetime('Date of Signing')
+    date_of_signing = fields.Date('Date of Signing')
     hired = fields.Selection([('yes','Yes'),('no','No')],string="Hired")
-    date_of_hiring = fields.Datetime('Date of Hiring')
+    date_of_hiring = fields.Date('Date of Hiring')
     reason_if_not_hired = fields.Many2one('interview.feedback','Reason if not hired')
-    sector_projects_type = fields.Selection([('banking','Banking'),('etisalat','Etisalat'),('non_etisalat','Non-Etisalat')],string="Sector Projects Type")
     #Answers
-    pronunciation = fields.Integer('Pronunciation')
-    grammer = fields.Integer('Grammer')
-    fluency = fields.Integer('Fluency')
-    understanding_vocab = fields.Integer('Understanding & Vocab')
+    # pronunciation = fields.Integer('Pronunciation')
+    # grammer = fields.Integer('Grammer')
+    # fluency = fields.Integer('Fluency')
+    # understanding_vocab = fields.Integer('Understanding & Vocab')
     #related fields
     # applicant_name = fields.Char(related="partner_id.name")
     # national_id = fields.Char(related="partner_id.national_id")
@@ -662,10 +864,15 @@ class EmployeeTechSkills(models.Model):
     applicant_id = fields.Many2one('hr.applicant', 'applicant')
 
     levels = fields.Many2one('lang.levels', 'Levels')
-    applicant_level = fields.Many2one('lang.levels', 'Applicant Level')
+    pronunciation = fields.Integer('Pronunciation')
+    grammer = fields.Integer('Grammer')
+    fluency = fields.Integer('Fluency')
+    understanding_vocab = fields.Integer('Understanding & Vocab')
 
-    employee_level = fields.Many2one('hr.skill.level', 'Employee Level', readonly=True)
-    validation_date = fields.Date('Validation Date', readonly=True)
+    # applicant_level = fields.Many2one('lang.levels', 'Applicant Level')
+    #
+    # employee_level = fields.Many2one('hr.skill.level', 'Employee Level', readonly=True)
+    # validation_date = fields.Date('Validation Date', readonly=True)
 
 
 

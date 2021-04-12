@@ -1,0 +1,67 @@
+<odoo>
+  <data>
+    <record id="view_mail_add_tech" model="ir.ui.view">
+              <field name="name">view_mail_add_tech</field>
+              <field name="model">mail.template</field>
+              <field name="inherit_id" ref="mail.email_template_form"/>
+              <field name="arch" type="xml">
+                <field name="model_id" position="after">
+                  <field name="technical_interview_notification"/>
+                  <field name="technical_notify"/>
+                </field>
+
+              </field>
+      </record>
+      <record id="email_template_tech_single_notify" model="mail.template">
+        <field name="name">Technical Interview: Notification</field>
+        <field name="model_id" ref="technical_interviewer_ext.model_hr_applicant"></field>
+        <field name="technical_notify">True</field>
+        <field name="subject">Technical Interview: Notification!</field>
+        <field name="body_html" type="html">
+          <div style="margin: 0px; padding: 0px;">Dear Interviewer,
+            <br/>
+            <br/>
+            <p>Thank you for Your Interest.
+              <br/>This is a notice that there is some technical interviews needs your review .
+            </p>
+            <p>The application name is "${object.name}" with the job title "${object.job_id.name}" on project "${object.project.name}" at Raya Contact Center.</p>
+            <br/>
+            <br/>
+            <p>Please Visite Raya Site And Review them</p>
+            <br/>
+            <p>Regards
+            </p>
+          </div>
+        </field>
+      </record>
+    <record model="ir.ui.view" id="technical_interviewer_ext_stage">
+      <field name="name">technical_interviewer_ext_stage</field>
+      <field name="model">hr.recruitment.stage</field>
+      <field name="inherit_id" ref="hr_recruitment.hr_recruitment_stage_form"/>
+      <field name="arch" type="xml">
+        <field name="job_ids" position="after">
+          <field name="technical" attrs="{'invisible':[('job_category','!=','operational')]}"/>
+        </field>
+      </field>
+    </record>
+    <record model="ir.ui.view" id="technical_interviewer_ext_applicant">
+      <field name="name">technical_interviewer_ext_applicant</field>
+      <field name="model">hr.applicant</field>
+      <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="header" position="inside">
+          <button name="send_technical_notify" attrs="{'invisible':['|',('technical','!=',True),('technical_done','=',True)]}" string="Notify Technical Interviewer" type="object" class="oe_highlight"/>
+        </xpath>
+        <field name="partner_mobile" position="after">
+          <field name="technical" attrs="{'invisible':[('job_category','!=','operational')]}"/>
+          <field name="technical_interviewer" attrs="{'invisible':[('job_category','!=','operational')]}"/>
+          <field name="technical_done" string="Technical Interview Done" force_save="1" readonly="1" invisible="0"/>
+        </field>
+        <field name="second_interview_feedback_reason" position="after">
+          <field name="second_interview_description" attrs="{'invisible':[('job_category','!=','operational')]}"/>
+        </field>
+      </field>
+    </record>
+
+  </data>
+</odoo>

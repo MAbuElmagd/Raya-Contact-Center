@@ -1,5 +1,22 @@
 <odoo>
   <data>
+    <data noupdate="1">
+      <record model="employee.misconduct" id="employee_misconduct_pay_attention">
+        <field name="name">Pay attention</field>
+        <field name="applying_restriction">1</field>
+        <field name="description"></field>
+      </record>
+      <record model="employee.misconduct" id="employee_misconduct_warning">
+        <field name="name">Warning</field>
+        <field name="applying_restriction">3</field>
+        <field name="description"></field>
+      </record>
+      <record model="employee.misconduct" id="employee_misconduct_Fine">
+        <field name="name">Fine</field>
+        <field name="applying_restriction">3</field>
+        <field name="description"></field>
+      </record>
+    </data>
     <!-- explicit list view definition -->
 
     <record model="ir.ui.view" id="employee_misconduct_list">

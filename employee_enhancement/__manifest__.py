@@ -17,7 +17,7 @@
     'version': '14.0',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','hr','hr_referral'],
+    'depends': ['base','hr','wc_hiring_request','hr_recruitment'],
 
     # always loaded
     'data': [

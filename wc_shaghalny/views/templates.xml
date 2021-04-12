@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="shaghlny_report_backend" name="shaghlny_report" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <script type="text/javascript" src="/wc_shaghalny/static/src/js/shaghlny_report_list_controller.js"></script>
+            <script type="text/javascript" src="/wc_shaghalny/static/src/js/shaghlny_report_list_view.js"></script>
+        </xpath>
+    </template>
+</odoo>

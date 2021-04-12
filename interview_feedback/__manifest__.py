@@ -20,7 +20,7 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','screening_questions','wc_screening_excel','hr_recruitment','wc_sourcing_extension','wc_ta_extention','wc_hiring_request','hr_recruitment_double_hiring','wc_raya_quality','hr_skill_qualification','wc_interview_checklist'],
+    'depends': ['base','screening_questions','wc_screening_excel','hr_recruitment','wc_sourcing_extension','wc_ta_extention','wc_hiring_request','hr_recruitment_double_hiring','wc_raya_quality','hr_skill_qualification','wc_interview_checklist','employee_kpi',],
 
     # always loaded
     'data': [

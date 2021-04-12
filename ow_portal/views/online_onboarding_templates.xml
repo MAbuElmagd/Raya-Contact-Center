@@ -72,7 +72,7 @@
             <attribute name="class">col-lg-3 o_my_sidebar</attribute>
         </xpath>
     </template>
-    
+
     <template id="portal_blocks" inherit_id="ow_portal.portal_check_list">
         <xpath expr="//div[hasclass('o_portal_docs')]" position="attributes">
             <attribute name="class">o_portal_docs list-group ow_portal</attribute>
@@ -85,7 +85,7 @@
             <!-- ######################### Non Technical Skills Box ###########################-->
             <li t-if="page_name == 'online' or online" t-attf-class="breadcrumb-item #{'active ' if not online else ''}">
                 <a t-if="online" t-attf-href="/my/online?{{ keep_query() }}">
-                    Online 
+                    Online
                 </a>
                 <t t-else="">
                     Online
@@ -112,7 +112,7 @@
         </xpath>
     </template>
     <!-- ################################################################################ -->
-    
+
     <!-- ############################## Home Landing Page Links ############################# -->
     <template id="portal_my_home_check_lists" name="Check Lists" customize_show="True" inherit_id="ow_portal.portal_check_list" priority="15">
         <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
@@ -139,61 +139,220 @@
 
 <!-- ############################## Non Tech Skills Tree Page ######################## -->
     <template id="portal_my_online" name="Online Guide">
-        <t t-call="portal.portal_layout">
-            <t t-set="breadcrumbs_searchbar" t-value="True"/>
-            <t t-call="portal.portal_searchbar">
-                <t t-set="title">Online Guide</t>
-            </t>
-			
-            <div t-if="not onlines" class="alert alert-warning mt8" role="alert">
-                There are no Online Guide for you.
-            </div>
-            <t t-if="onlines" t-call="portal.portal_table">
-                <thead>
-                    <tr>
-                        <th class="w-75">Name</th>
-                        <th >Type</th>
-                        <th>View</th>
-                        <th>URL</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr t-foreach="onlines" t-as="online">
-                        <td>
-                          <span t-field="online.name"/>
-                        </td>
-                        <td><span t-field="online.type" /></td>
-                        <td>
-                            <a t-att-href="'/web/content/%i?download=false' % online.attachment.id">
-                                <span t-esc="online.attachment.name" class="fa fa-download" />
-                            </a>
-                        </td>
-                        <td>
-                            <iframe width="420" height="315" src="online.url"> </iframe>
-                                
-                        </td>
-                      
-                        
-                    </tr>
-                </tbody>
-                
-                <thead>
-                    <tr>
-                        <th class="w-75">Entry Name</th>
-                        <th >Done</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr t-foreach="entrylist" t-as="ent">
-                        <td>
-                          <span t-field="ent.name"/>
-                        </td>
-                        <td><span t-field="ent.done" /></td>
-                    </tr>
-                </tbody>
-            </t>
+      <t t-call="portal.portal_layout">
+          <t t-set="breadcrumbs_searchbar" t-value="True"/>
+          <t t-call="portal.portal_searchbar">
+              <t t-set="title">Online Guide</t>
+          </t>
+    <t t-if="not onlines">
+      <t t-if="not entrylist">
+        <t t-if="not optionlist">
+          <div t-if="not onlines" class="alert alert-warning mt8" role="alert">
+              There are no Online Guide for you.
+          </div>
         </t>
-    </template>
-    
-  
+      </t>
+    </t>
+          <style>
+              .ul_td{
+                  background-image: url("/ow_portal/static/vr_pg.png");
+                  background-repeat: repeat-x;
+              }
+              $total-items: 5;
+
+              .ull {
+                width: 300px;
+                margin-top: 25px;
+              }
+
+              .lii {
+                position: relative;
+                display: block;
+                padding-top: 15px;
+                font-size: 13px;
+                margin-bottom: 5px;
+              margin-left: 5px;
+              margin-right: 5px;
+              height:61px;
+              width:258px;
+
+                text-align: center;
+
+                animation: fadeIn 1.5s linear;
+                animation-fill-mode: both;
+                background-image:url("/ow_portal/static/buttonpg2.png");
+              }
+              .lii:hover {
+                  font-size: 15px;
+                  color:yellow;
+                  text-transform: uppercase;
+                }
+
+              // Set delay per List Item
+              @for $i from 1 through $total-items {
+                li:nth-child(#{$i}) {
+                  animation-delay: .25s * $i;
+                }
+              }
+
+              // Keyframe animation
+              @-webkit-keyframes fadeIn {
+                0% {
+                  opacity: 0;
+                  top: 100px;
+                }
+                75% {
+                  opacity: 0.5;
+                  top: 0px;
+                }
+                100% {
+                  opacity: 1;
+                }
+              }
+
+          </style>
+          <script>
+              var divState = {};
+              function show(nameElement){
+
+                  var divs = document.getElementsByClassName("hideable");
+                  for (var i = 0; i &lt; divs.length; i++) {
+                      divs[i].style.display = "none";
+                   }
+                  document.getElementById(nameElement).style.display ='';
+              }
+          </script>
+          <t  t-call="portal.portal_table">
+            <table width="100%" >
+              <tr style="height:65px;" bgcolor="black">
+                  <td align="left" width="200px;" >
+                      <img src="/ow_portal/static/logo.png" height="60px" />
+                  </td>
+                <td align="center" style="width: 255px;height: 60px;background-image: url('/ow_portal/static/Row_hover.png');color: white;" >
+
+                  <a  t-if="onlines" onclick="document.getElementById('on_sh').style.display='';document.getElementById('entrylist_sh').style.display='none';document.getElementById('optionlst_sh').style.display='none';" > Onboarding Content </a>
+                </td>
+                <td align="center" t-if="entrylist"  style="width: 255px;height: 60px;background-image: url('/ow_portal/static/Row_hover.png');color: white;" >
+                  <a  t-if="entrylist" onclick="document.getElementById('entrylist_sh').style.display='';document.getElementById('on_sh').style.display='none';document.getElementById('optionlst_sh').style.display='none';" > Checklist </a>
+                </td>
+                <td align="optionlist" style="width: 255px;height: 60px;background-image: url('/ow_portal/static/Row_hover.png');color: white;" >
+                  <a   t-if="optionlist" onclick="document.getElementById('entrylist_sh').style.display='none';document.getElementById('on_sh').style.display='none';document.getElementById('optionlst_sh').style.display='';"  > Options </a>
+                </td>
+              </tr>
+              </table>
+
+              <table  width="100%" id='on_sh'  style="display:none;">
+                  <tr style="height:690px;">
+                      <td width="250px" style="vertical-align: top;" class="ul_td">
+                          <ul class="ull" style="margin: 0 0 0 0;padding: 0 0 0 0;color:white;">
+                              <t t-foreach="onlines" t-as="online">
+                                  <!--<input type="text" t-att-id="online.name" t-att-value="online.name" t-att-srcc="" />-->
+                                  <li class="lii" onclick="show(this.getAttribute('valuev'));"   t-att-valuev="online.name" ><span t-field="online.name"/></li>
+                              </t>
+                          </ul>
+                      </td>
+                      <td style="vertical-align: top;"  >
+                              <t t-foreach="onlines" t-as="online" >
+                                  <t  t-if="online.attachment" >
+                                      <embed t-att-id="online.name" height="100%" class="hideable" style="display:none;width:100%;height:700px;"  data="toolbar=0" t-att-src="'/web/content/%i#toolbar=0' % online.attachment.id" width="100%"
+                                             type="application/pdf" />
+
+                                  </t>
+
+                                  <t t-if="online.url">
+                                    <iframe t-att-id="online.name" class="hideable" style="display:none;width:100%;height:700px;"  t-att-src="online.url" allowFullScreen="true" frameborder="0"/>
+                                  </t>
+                              </t>
+                      </td>
+                  </tr>
+              </table>
+              <!-- #################################################################################################### -->
+              <!--           GRADE 6     -->
+              <!-- #################################################################################################### -->
+
+               <table width="100%" id='entrylist_sh'  style="display:none;">
+                  <tr style="height:690px;" width="100%">
+                      <td width="250px" style="vertical-align: top;" class="ul_td">
+                          <ul class="ull" style="margin: 0 0 0 0;padding: 0 0 0 0;color:white;">
+                             <!-- <t t-foreach="onlines" t-as="online">-->
+                                  <!--<input type="text" t-att-id="online.name" t-att-value="online.name" t-att-srcc="" />-->
+                                  <li class="lii" >Grade 6 List</li>
+                              <!--</t>-->
+                          </ul>
+                      </td>
+                      <td style="vertical-align: top;"  >
+                          <form method="POST"  t-attf-action="my/online/createg6" class="modal-content js_website_submit_form new_skills_form">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <table width="100%" style="padding:5px 5px 5px 5px;margin:5px 5px 5px 5px;"  align="center" >
+                                    <tr style="height:60px;" bgcolor="#dfdfdf">
+                                        <td width="400px" align="left"  >Entry Name</td>
+                                        <td >Done</td>
+                                    </tr>
+
+                                    <tr t-foreach="entrylist"  t-as="ent">
+                                        <td>
+                                          <input type="text"  style="margin-top: 10px;" readonly="1" t-att-value="ent.name.name"/>
+                                        </td>
+                                        <td>
+                                          <input type="checkbox" style="margin: -2px 0 0 0;" class="s_website_form_input form-check-input" t-att-name="ent.id" t-att-id="ent.id"  t-att-value="ent.done"  t-att-checked="ent.done" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                      <td colspan="2">
+                                          <input class="btn btn-primary mt8 a-submit" type="submit" value="Confirm"/>
+                                      </td>
+                                    </tr>
+                                </table>
+                                  </form>
+                      </td>
+                  </tr>
+              </table>
+
+               <!-- #################################################################################################### -->
+              <!--           options     -->
+              <!-- #################################################################################################### -->
+
+               <table   width="100%" id='optionlst_sh'  style="display:none;">
+                  <tr style="height:690px;">
+                      <td width="250px" style="vertical-align: top;" class="ul_td">
+                          <ul class="ull" style="margin: 0 0 0 0;padding: 0 0 0 0;color:white;">
+                             <!-- <t t-foreach="onlines" t-as="online">-->
+                                  <!--<input type="text" t-att-id="online.name" t-att-value="online.name" t-att-srcc="" />-->
+                                  <li class="lii" >Options List</li>
+                              <!--</t>-->
+                          </ul>
+                      </td>
+                      <td style="vertical-align: top;"  >
+                          <form method="POST"  t-attf-action="my/online/options" class="modal-content js_website_submit_form new_options_form">
+                              <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <table width="100%" style="padding:5px 5px 5px 5px;margin:5px 5px 5px 5px;"   align="center" >
+                                    <tr style="height:60px;" bgcolor="#dfdfdf">
+                                        <td width="400px" align="left" >Option Name</td>
+                                        <td  >Done</td>
+                                    </tr>
+
+                                    <tr t-foreach="optionlist"  t-as="opt">
+                                        <td >
+                                          <input type="text" readonly="1" t-att-value="opt.description" style="margin-top: 10px;" />
+                                        </td>
+                                        <td >
+                                          <input type="checkbox" style="margin: -2px 0 0 0;" class="s_website_form_input form-check-input" t-att-id="opt.id"  t-att-name="opt.id" t-att-value="opt.select"  t-att-checked="opt.select" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                      <td colspan="2">
+                                          <input class="btn btn-primary mt8 a-submit" type="submit" value="Confirm"/>
+                                      </td>
+                                    </tr>
+                                </table>
+                              </form>
+                      </td>
+                  </tr>
+              </table>
+
+          </t>
+      </t>
+        </template>
+
+
 </odoo>

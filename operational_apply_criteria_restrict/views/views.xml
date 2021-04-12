@@ -1,0 +1,153 @@
+<odoo>
+  <data noupdate="1">
+    <record model="military.status" id="military_status_completed">
+      <field name="name">Completed</field>
+      <field name="related_military_status">Completed</field>
+    </record>
+    <record model="military.status" id="military_status_will_serve">
+      <field name="name">Will serve</field>
+      <field name="related_military_status">Will serve</field>
+    </record>
+    <record model="military.status" id="military_status_exempted">
+      <field name="name">Exempted</field>
+      <field name="related_military_status">Exempted</field>
+    </record>
+    <record model="military.status" id="military_status_postponed">
+      <field name="name">Postponed</field>
+      <field name="related_military_status">Postponed</field>
+    </record>
+    <record model="military.status" id="military_status_female">
+      <field name="name">Female</field>
+      <field name="related_military_status">Female</field>
+    </record>
+  </data>
+
+  <data>
+    <record id="view_hr_employee_form" model="ir.ui.view">
+		<field name="name">view.hr.job.form</field>
+		<field name="model">hr.job</field>
+		<field name="inherit_id" ref="hr.view_hr_job_form"/>
+		<field name="arch" type="xml">
+    <field name="excel_check" position="after">
+    <field name="restricted_criteria" attrs="{'invisible':[('job_category','!=','operational')]}"/>
+    </field>
+			<xpath expr="//notebook" position="inside">
+        <page name="restricted_criteria" string="Restricted Criteria" attrs="{'invisible':[('restricted_criteria','!=',True)]}">
+        <group>
+        <group>
+          <field name="age_from_restrict"/>
+        </group>
+        <group>
+          <field name="age_to_restrict"/>
+        </group>
+        </group>
+        <group>
+         <field name="nationality_restrict" widget="many2many_tags"/>
+          <field name="gender_restrict" />
+          <field name="governorate_restrict" widget="many2many_tags"/>
+          <field name="area_restrict" widget="many2many_tags"/>
+          <field name="military_status_restict" widget="many2many_tags"/>
+          <field name="graduation_status_restrict"/>
+          <field name="university_restrict" widget="many2many_tags"/>
+          <field name="faculty_restrict" widget="many2many_tags"/>
+          <field name="english_level_restict"/>
+          <field name="social_insurance_restict"/>
+          <field name="worked_4_raya_restrict"/>
+          <field name="pc_laptop_restrict"/>
+          <field name="internet_con_restrict"/>
+          <field name="connection_speed_restict"/>
+          <field name="internet_provider_restrict"/>
+          <field name="type_of_connection_restrict"/>
+          <field name="ready_work_from_home_restrict"/>
+          <field name="operating_sys_restrict"/>
+          <field name="indebendancy_restict"/>
+          <field name="prev_work_experience_restrict"/>
+          <field name="rotational_shifts_restict"/>
+          </group>
+        </page>
+       </xpath>
+		</field>
+	</record>
+
+  <record id="hr_applicant_view_form" model="ir.ui.view">
+            <field name="name">hr.applicant.form</field>
+            <field name="model">hr.applicant</field>
+            <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form"/>
+            <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+              <button string="Criteria Exception" attrs="{'invisible':[('crit_hold','=',False)]}" name="crit_hold_release" type="object" class="oe_highlight" groups="operational_apply_criteria_restrict.group_recruitment_analyst"/>
+            </xpath>
+            <xpath expr="//field[@name='quality_hold']" position="after">
+              <div name="crite_div" attrs="{'invisible':[('job_category','!=','operational')]}">
+                <label for="crit_hold"/>
+                <field name="crit_hold" string="Criteria Hold" readonly="1" force_save="1"/>
+              </div>
+            </xpath>
+            </field>
+    </record>
+    <record id="view_mail_add_criteria" model="ir.ui.view">
+              <field name="name">view_mail_add_criteria</field>
+              <field name="model">mail.template</field>
+              <field name="inherit_id" ref="mail.email_template_form"/>
+              <field name="arch" type="xml">
+                <field name="model_id" position="after">
+                  <field name="criteria_hold_notification"/>
+                </field>
+
+              </field>
+      </record>
+
+      <record id="email_template_criteria_hold_notify" model="mail.template">
+        <field name="name">Notification: Criteria Hold Applications</field>
+        <field name="model_id" ref="base.model_res_users"></field>
+        <field name="email_to">${object.email |safe}</field>
+        <field name="criteria_hold_notification">True</field>
+        <field name="subject"> Notification: Criteria Hold Applications</field>
+        <field name="body_html" type="html">
+          <div style="margin: 0px; padding: 0px;">
+             Dear ${object.name},
+             <p>
+                <br/><br/>
+                You can find the current criteria hold applications in the table below.<br/>
+           </p>
+             <table>
+                <tbody>
+                   % for line in object.partner_id.quality_hold_applications:
+                   <tr>
+                      <td>${line.name}</td>
+                                  <td>${line.national_id}</td>
+                      <br/>
+                   </tr>
+                   % endfor
+                </tbody>
+             </table>
+            <br/>
+
+                      Thank you,
+                      % if object.signature:
+                          <br />
+                          ${object.signature | safe}
+                      % endif
+                    </div>
+        </field>
+      </record>
+
+      <record id='notify_criteria_hold' model='ir.cron'>
+                  <field name='name'>Critria Hold Notification</field>
+                  <field name='model_id' ref='hr_recruitment.model_hr_applicant'/>
+                  <field name='state'>code</field>
+                  <field name='code'>
+                  model.notify_criteria_hold()
+                  </field>
+                  <field name='interval_number'>1</field>
+                  <field name='interval_type'>days</field>
+                  <field name='numbercall'>-1</field>
+                  <field name="priority">0</field>
+                  <field name="doall" eval="True"/>
+                  <field name="nextcall" eval="(datetime.now() + timedelta(days=0)).strftime('%Y-%m-%d 21:59:59')" />
+                  <field name="user_id" ref="base.user_root" />
+                  <field name="active" eval="True"/>
+              </record>
+
+  </data>
+</odoo>

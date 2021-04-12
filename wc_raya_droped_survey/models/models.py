@@ -17,7 +17,7 @@ class Survey(models.Model):
         for rec in self:
             survey = self.search([('dropped_survey', '=', True),
                                    ('id', '!=', rec.id)])
-            if survey :
+            if survey and rec.dropped_survey:
                 raise UserError(
                     _('Dropped Survey Already Marked in !!')
                 )
@@ -86,8 +86,8 @@ class SurveyUserInput(models.Model):
     _inherit = 'survey.user_input'
 
     applicant_id=fields.Many2one('hr.applicant')
-    project_id=fields.Many2one('rcc.project', related="applicant_id.project")
-    recruiter_id=fields.Many2one('res.users', related="applicant_id.user_id")
+    project_id=fields.Many2one('rcc.project')
+    recruiter_id=fields.Many2one('res.users')
 
     def get_dropped_survey_start_url(self):
         self.ensure_one()
@@ -110,7 +110,7 @@ class MailTemplate(models.Model):
         for rec in self:
             mail = self.search([('dropped_survey', '=', True),
                                    ('id', '!=', rec.id)])
-            if mail and rec.internal_sourcing_template:
+            if mail and rec.dropped_survey:
                 raise UserError(
                     _('Assessment Test Template Already Marked in %s.' % mail.name)
                 )
@@ -130,13 +130,50 @@ class MailTemplate(models.Model):
 #         self.env.cr.execute(""" CREATE VIEW wc_raya_qoh_report AS (
 #            SELECT row_number() OVER () as id,
 
-class SurveyUserInputLine(models.Model):
-    _inherit = 'survey.user_input.line'
+# class SurveyUserInputLine(models.Model):
+#     _inherit = 'survey.user_input.line'
+#
+#     applicant_id = fields.Many2one('hr.applicant', related="user_input_id.applicant_id")
+#     dropped_survey = fields.Boolean(string='Dropped Survey', related="survey_id.dropped_survey")
+#     project_id = fields.Many2one('rcc.project', related="user_input_id.project_id")
+#     applicant_number = fields.Char(related='applicant_id.partner_phone')
+#     recruiter_id = fields.Many2one('res.users', related='applicant_id.user_id')
+#     trainer_id = fields.Many2one('hr.employee', related='applicant_id.trainer_id')
+#     training_session = fields.Selection([('online','Online'),('onsite','On Site')], related='applicant_id.training_session')
 
-    applicant_id = fields.Many2one('hr.applicant', related="user_input_id.applicant_id")
-    dropped_survey = fields.Boolean(string='Dropped Survey', related="survey_id.dropped_survey")
-    project_id = fields.Many2one('rcc.project', related="user_input_id.project_id")
-    applicant_number = fields.Char(related='applicant_id.partner_phone')
-    recruiter_id = fields.Many2one('res.users', related='applicant_id.user_id')
-    trainer_id = fields.Many2one('hr.employee', related='applicant_id.trainer_id')
-    training_session = fields.Selection([('online','Online'),('onsite','On Site')], related='applicant_id.training_session')
+
+
+class WeHearYourVoice(models.Model):
+    _name = 'we_hear_your_voice.report'
+    _description = 'we_hear_your_voice.report'
+    _auto = False
+
+    id = fields.Integer()
+    timestamp_date = fields.Datetime()
+    applicant_id = fields.Many2one('hr.applicant')
+    project_id = fields.Many2one('rcc.project')
+    applicant_number = fields.Char()
+    recruiter_id = fields.Many2one('res.users')
+    trainer_id = fields.Many2one('hr.employee')
+    training_session = fields.Selection([('online','Online'),('onsite','On Site')])
+    question_id = fields.Many2one('survey.question')
+    value_text_box = fields.Text()
+    suggested_answer_id = fields.Many2one('survey.question.answer')
+
+    def init(self):
+        """ WE HEAR YOUR VOICE report """
+        self.env.cr.execute('DROP VIEW IF EXISTS we_hear_your_voice_report')
+        self.env.cr.execute(""" CREATE VIEW we_hear_your_voice_report AS (
+            SELECT row_number() OVER () as id,
+            create_date as timestamp_date,
+            (select applicant_id from survey_user_input input_id where input_id.id = input_line_id.user_input_id) as applicant_id,
+            (select project_id from survey_user_input input_id where input_id.id = input_line_id.user_input_id) as project_id,
+            (select partner_phone from hr_applicant applicant where applicant.id = (select applicant_id from survey_user_input input_id where input_id.id = input_line_id.user_input_id)) as applicant_number,
+            (select id from res_users user_id where user_id.id = (select user_id from hr_applicant applicant where applicant.id = (select applicant_id from survey_user_input input_id where input_id.id = input_line_id.user_input_id))) as recruiter_id,
+            (select id from hr_employee employee where employee.id = (select trainer_id from hr_applicant applicant where applicant.id = (select applicant_id from survey_user_input input_id where input_id.id = input_line_id.user_input_id))) as trainer_id,
+            (select training_session from hr_applicant applicant where applicant.id = (select applicant_id from survey_user_input input_id where input_id.id = input_line_id.user_input_id)) as training_session,
+            question_id as question_id,
+            value_text_box as value_text_box,
+            suggested_answer_id as suggested_answer_id
+            FROM survey_user_input_line input_line_id WHERE (select dropped_survey from survey_survey survey where survey.id = input_line_id.survey_id) = True
+            ) """)

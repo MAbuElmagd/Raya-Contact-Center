@@ -25,7 +25,7 @@
   		<field name="arch" type="xml">
   			<field name="name" position="after">
           <field name="hr_id"/>
-          <field name="identification_id"/>
+          <!-- <field name="identification_id"/> -->
         </field>
   		</field>
   	</record>
@@ -36,8 +36,9 @@
   		<field name="arch" type="xml">
   			<group name="departure" position="after">
           <group string="RCC">
+            <field name="job_category_n_c" invisible="1"/>
             <field name="raya_team"/>
-            <field name="project" attrs="{'invisible':[('raya_team','=',True)],'required':[('raya_team','=',False)]}"/>
+            <field name="project" attrs="{'invisible':[('raya_team','=',True)],'required':[('raya_team','=',False),('job_category_n_c','=','operational')]}"/>
     				<field name="hr_id"/>
           </group>
   			</group>
@@ -89,7 +90,7 @@
             <field name="proj_id" attrs="{'invisible':[('share_option','!=','project')],'required':[('share_option','=','project')],'readonly':[('state','!=','draft')]}" widget="many2many_tags"/>
           </field>
           <field name="project" position="attributes">
-            <attribute name="attrs">{'required':['|',('share_option','=','project'),('category','=','Talent Acq')],'readonly':[('state','!=','draft')]}</attribute>
+            <attribute name="attrs">{'required':[('category','!=','Talent Acq')],'readonly':[('state','!=','draft')]}</attribute>
           </field>
       </field>
     </record>

@@ -1,5 +1,75 @@
 <odoo>
   <data>
+<!-- Server Actions -->
+<!--  -->
+<record id="action_start_onboarding" model="ir.actions.server">
+        	<field name="name">Start Onboarding</field>
+            <field name="type">ir.actions.server</field>
+        	<field name="model_id" ref="wc_onboarding.model_onboarding_onboarding" />
+        	<field name="state">code</field>
+                 <field name="code">action=records.start_onboarding()</field>                                        
+    	</record>
+
+<record id="action_send_email" model="ir.actions.server">
+        	<field name="name">Send Email</field>
+            <field name="type">ir.actions.server</field>
+        	<field name="model_id" ref="wc_onboarding.model_onboarding_onboarding" />
+        	<field name="state">code</field>
+                 <field name="code">action=records.mass_send_email()</field>                                        
+    	</record>
+
+      <record id="action_online_share" model="ir.actions.server">
+        	<field name="name">Online Share</field>
+            <field name="type">ir.actions.server</field>
+        	<field name="model_id" ref="wc_onboarding.model_onboarding_onboarding" />
+        	<field name="state">code</field>
+                 <field name="code">action=records.mass_online_share()</field>                                        
+    	</record>
+<!-- Bulk Onboarding -->
+  <record id="view_create_bulk_onboarding_form" model="ir.ui.view">
+    <field name="name">Bulk OnBoarding</field>
+    <field name="model">onboarding.bulk</field>
+    <field name="arch" type="xml">
+      <form string="Bulk Onboarding">
+      <header>
+                  <!-- <button name="start_onboarding" class="btn btn-primary" type="object" string="Start Onboarding" attrs="{'invisible':[('is_draft','!=',True)]}"/>
+                   <button name="send_email" class="btn btn-primary" type="object" string="Send Email" attrs="{'invisible':[('is_in_progress','!=',True)]}"/>
+                  <button name="online_share" class="btn btn-primary" type="object" string="Online Share" attrs="{'invisible':[('is_in_progress','!=',True)]}"/> -->
+                 <button name="create_onboardings" class="btn btn-primary" type="object" string="Create onboardings" attrs="{'invisible':[('created','=',True)]}"/>
+                 </header>
+                 <sheet>
+        <group>
+          <field name="name" force_save="1" attrs="{'readonly':[('created','=',True)]}"/>
+          <field name="employees" force_save="1" widget="many2many_tags" attrs="{'readonly':[('created','=',True)]}"/>
+          <field name="is_draft" invisible="1"/>
+          <field name="created" invisible="1"/>
+          <field name="is_in_progress" invisible="1"/>
+        </group>
+                         </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="view_create_bulk_onboarding_list" model="ir.ui.view">
+    <field name="name">Bulk OnBoarding</field>
+    <field name="model">onboarding.bulk</field>
+    <field name="arch" type="xml">
+      <tree string="Bulk Onboarding">
+          <field name="name"/>
+          <!-- <field name="employees" widget="many2many_tags"/> -->
+      </tree>
+    </field>
+  </record>
+
+  <record id="action_bulk_onboarding_window" model="ir.actions.act_window">
+          <field name="name">Bulk OnBoarding</field>
+          <field name="res_model">onboarding.bulk</field>
+          <field name="view_mode">tree,form</field>
+      </record>
+
+    <menuitem id="menu_bulk_onboarding" name="Bulk OnBoarding" parent="menu_onboarding_root"
+        action="action_bulk_onboarding_window" sequence="2"/>
+
   <!-- schadule meeting wizard -->
 
   <record id="view_create_onboarding_meeting" model="ir.ui.view">
@@ -53,7 +123,7 @@
                 <header>
                   <button name="start_onboarding" class="btn btn-primary" type="object" string="Start Onboarding" attrs="{'invisible':[('is_draft','!=',True)]}"/>
                   <button name="send_email" class="btn btn-primary" type="object" string="Send Email" attrs="{'invisible':['|',('is_in_progress','!=',True),('is_email','!=',True)]}"/>
-                  <button name="online_share" class="btn btn-primary" type="object" string="Online Share" attrs="{'invisible':['|',('is_in_progress','!=',True),('is_online_share','!=',True)]}"/>
+                  <button name="online_share" class="btn btn-primary" type="object" string="Online Share" attrs="{'invisible':['|',('is_in_progress','!=',True),('is_shared','!=',True)]}"/>
                   <field name="stage_id" widget="statusbar" options="{'clickable': '1'}" />
                  </header>
                 <sheet>
@@ -102,6 +172,8 @@
                       <field name="is_grade_6"/>
                       <field name="is_meetings"/>
                       <field name="is_options"/>
+                      <field name="is_shared" invisible="1"/>
+                      <field name="bulk_id" invisible="1"/>
                     </group>
                     <group>
                       <field name="is_entry_checklist"/>

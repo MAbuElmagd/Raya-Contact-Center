@@ -1,127 +1,131 @@
 <odoo>
   <data>
-  <record id="action_qoh_project_report_pivot" model="ir.ui.view">  
-<field name="name">QOH Per Project</field>  
-<field name="model">wc_raya_qoh.report</field>  
-<field name="arch" type="xml">      
-<pivot string="QOH dropout reason">  
-<field name="x_qoh" type="col"/>              
-<field name="x_project" type="row"/>              
-</pivot>   
+  <record id="action_qoh_project_report_pivot" model="ir.ui.view">
+<field name="name">QOH Per Project</field>
+<field name="model">wc_raya_qoh.report</field>
+<field name="arch" type="xml">
+<pivot string="QOH dropout reason">
+<field name="x_qoh" type="col"/>
+<field name="x_project" type="row"/>
+</pivot>
 </field>
-</record>      
+</record>
 
 <!-- pivot report -->
-<record id="action_qoh_report" model="ir.actions.act_window">      
+<record id="action_qoh_report" model="ir.actions.act_window">
 <field name="name">QOH raw data</field>
 <field name="res_model">wc_raya_qoh.report</field>
 <field name="view_mode">tree,pivot</field>
 </record>
 
 
-<record id="action_qoh_report_tree" model="ir.ui.view">  
-<field name="name">tree</field>  
-<field name="model">wc_raya_qoh.report</field>  
-<field name="arch" type="xml">      
-<tree string="tree View">           
-<field name="x_tower" />      
-<field name="x_working_location" />      
-<field name="x_sector" />      
-<field name="x_partner_id" />      
-<field name="x_project" />      
-<field name="x_level_name" />      
-<field name="x_request_id" />      
-<field name="x_batch" />      
-<field name="x_training_start_date" />      
-<field name="x_source_id" />      
-<field name="x_medium_id" />      
-<field name="x_name" />      
-<field name="x_phone" />      
-<field name="x_national_id" />      
-<field name="x_age" />      
-<field name="x_faculty" />      
-<field name="x_area_id"/>      
+<record id="action_qoh_report_tree" model="ir.ui.view">
+<field name="name">tree</field>
+<field name="model">wc_raya_qoh.report</field>
+<field name="arch" type="xml">
+<tree string="tree View">
+<field name="x_tower" />
+<field name="x_working_location" />
+<field name="x_sector" />
+<field name="x_user_id"/>
+<!-- <field name="x_partner_id" /> -->
+<field name="x_project" />
+<field name="x_level_name"/>
+<field name="x_request_id" />
+<field name="x_batch" />
+<field name="x_month" />
+<field name="x_training_start_date" />
+<field name="x_source_id" />
+<field name="x_medium_id" />
+<field name="x_name" />
+<field name="x_phone" />
+<field name="x_national_id" />
+<field name="x_age" />
+<field name="x_faculty" />
+<field name="x_area_id"/>
 <field name="x_graduated"/>
-<field name="x_hc_date"/>      
-<field name="x_days"/>      
-<field name="x_qoh"/>      
-<field name="x_reason_id"/>    
-</tree>   
+<field name="x_hc_status"/>
+<field name="x_hc_date"/>
+<field name="x_days"/>
+<field name="x_qoh"/>
+<field name="x_tarinee_status"/>    
+<field name="x_reason_id"/>
+</tree>
 </field>
 </record>
 
-<record id="action_qoh_report_pivot_drop" model="ir.ui.view">  
-<field name="name">QOH dropout Reason</field>  
-<field name="model">wc_raya_qoh.reason</field>  
-<field name="arch" type="xml">      
-<pivot string="QOH dropout Reason">  
-<field name="x_dropout_reason" type="row"/>              
-</pivot>   
+<record id="action_qoh_report_pivot_drop" model="ir.ui.view">
+<field name="name">QOH dropout Reason</field>
+<field name="model">wc_raya_qoh.reason</field>
+<field name="arch" type="xml">
+<pivot string="QOH dropout Reason">
+<field name="x_dropout_reason" type="row"/>
+</pivot>
 </field>
 </record>
 
-<record id="action_qoh_dropout_reason" model="ir.actions.act_window">      
+<record id="action_qoh_dropout_reason" model="ir.actions.act_window">
 <field name="name">QOH Dropout Reason</field>
 <field name="res_model">wc_raya_qoh.reason</field>
 <field name="view_mode">pivot</field>
 <field name="view_id" ref="action_qoh_report_pivot_drop"/>
 </record>
 
-<record id="action_qoh_tower_report_pivot" model="ir.ui.view">  
-<field name="name">QOH Per Tower</field>  
-<field name="model">wc_raya_qoh.report</field>  
-<field name="arch" type="xml">      
-<pivot string="QOH dropout reason">  
-<field name="x_qoh" type="row"/>              
-<field name="x_tower" type="col"/>   
-</pivot>   
+<record id="action_qoh_tower_report_pivot" model="ir.ui.view">
+<field name="name">QOH Per Tower</field>
+<field name="model">wc_raya_qoh.report</field>
+<field name="arch" type="xml">
+<pivot string="QOH dropout reason">
+<field name="x_qoh" type="row"/>
+<field name="x_tower" type="col"/>
+</pivot>
 </field>
 </record>
 
-<record id="action_qoh_recruiter_report_pivot" model="ir.ui.view">  
-<field name="name">QOH Per Recruiter</field>  
-<field name="model">wc_raya_qoh.report</field>  
-<field name="arch" type="xml">      
-<pivot string="QOH dropout reason">  
-<field name="x_qoh" type="col"/>              
-<field name="x_partner_id" type="row"/>              
-</pivot>   
+<record id="action_qoh_recruiter_report_pivot" model="ir.ui.view">
+<field name="name">QOH Per Recruiter</field>
+<field name="model">wc_raya_qoh.report</field>
+<field name="arch" type="xml">
+<pivot string="QOH dropout reason">
+<field name="x_qoh" type="col"/>
+<field name="x_user_id" type="row"/>
+</pivot>
 </field>
 </record>
 
-<record id="action_qoh_sector_report_pivot" model="ir.ui.view">  
-<field name="name">QOH Per Sector</field>  
-<field name="model">wc_raya_qoh.report</field>  
-<field name="arch" type="xml">      
-<pivot string="QOH dropout reason">  
-<field name="x_qoh" type="col"/>              
-<field name="x_sector" type="row"/>              
-</pivot>   
+<record id="action_qoh_sector_report_pivot" model="ir.ui.view">
+<field name="name">QOH Per Sector</field>
+<field name="model">wc_raya_qoh.report</field>
+<field name="arch" type="xml">
+<pivot string="QOH dropout reason">
+<field name="x_qoh" type="col"/>
+<field name="x_sector" type="row"/>
+</pivot>
 </field>
 </record>
 
-<record id="action_qoh_report_tower" model="ir.actions.act_window">      
+<record id="action_qoh_report_tower" model="ir.actions.act_window">
     <field name="name">QOH Per Tower</field>
     <field name="res_model">wc_raya_qoh.report</field>
     <field name="view_mode">pivot</field>
     <field name="view_id" ref="action_qoh_tower_report_pivot"/>
     </record>
-     
-  <record id="action_qoh_report_recruiter" model="ir.actions.act_window">      
+
+  <record id="action_qoh_report_recruiter" model="ir.actions.act_window">
     <field name="name">QOH Per Recruiter</field>
     <field name="res_model">wc_raya_qoh.report</field>
     <field name="view_mode">pivot</field>
     <field name="view_id" ref="action_qoh_recruiter_report_pivot"/>
     </record>
 
-    <record id="action_qoh_report_sector" model="ir.actions.act_window">      
+    <record id="action_qoh_report_sector" model="ir.actions.act_window">
     <field name="name">QOH Per Sector</field>
     <field name="res_model">wc_raya_qoh.report</field>
     <field name="view_mode">pivot</field>
     <field name="view_id" ref="action_qoh_sector_report_pivot"/>
     </record>
 
-<record id="action_qoh_report_project" model="ir.actions.act_window">      
+<record id="action_qoh_report_project" model="ir.actions.act_window">
     <field name="name">QOH Per Project</field>
     <field name="res_model">wc_raya_qoh.report</field>
     <field name="view_mode">pivot</field>
@@ -148,6 +152,6 @@
 
     <menuitem name="QOH per Project" id="menu_report_qoh_project" parent="menu_report_qoh_analysis"
     sequence="58" action="action_qoh_report_project" groups=""/>
-          
+
   </data>
 </odoo>

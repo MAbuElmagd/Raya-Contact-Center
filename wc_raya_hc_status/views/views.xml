@@ -1,0 +1,56 @@
+<odoo>
+  <data>
+<record id="view_hr_applicant_assess_form" model="ir.ui.view">
+                    <field name="name">view.hr.applicant.form</field>
+                    <field name="model">hr.applicant</field>
+                    <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form" />
+                    <field name="arch" type="xml">
+                     <field name="tarinee_status" position="after">
+                      <field name="hc_status"/>
+                      <field name="hc_date" attrs="{'invisible':[('hc_status','=',False)]}"/>
+                       </field>
+                       <field name="quality_of_hiring_date" position="after">
+                      <field name="app_qoh"/>
+                      <field name="qoh" invisible="1"/>
+                       </field>
+                    </field>
+                </record>
+                <record model="ir.ui.view" id="hc_status_info_tree_view">
+     <field name="name">HC status</field>
+     <field name="model">wc_raya_qoh.hc_status</field>
+     <field name="arch" type="xml">
+         <tree string="HC status">
+                  <field name="name" />
+         </tree>
+     </field>
+     </record>
+     <record model="ir.ui.view" id="hc_status_info_form_view">
+     <field name="name">HC status</field>
+     <field name="model">wc_raya_qoh.hc_status</field>
+     <field name="arch" type="xml">
+         <form string="HC status">
+           <sheet>
+               <group>
+                 <field name="name"/>
+
+                 <field name="is_certified"/>
+                 <field name="is_join"/>
+                 <field name="is_rejoin"/>
+                 <field name="is_transfer"/>
+                  <field name="is_trainee"/>
+               </group>
+           </sheet>
+         </form>
+     </field>
+     </record>
+                 <!-- HC status recruitment configurations -->
+   <record model="ir.actions.act_window" id="hc_status_info">
+      <field name="name">HC status</field>
+      <field name="res_model">wc_raya_qoh.hc_status</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+
+              <menuitem name="HC status" id="hc_status_menu" parent="hr_recruitment.menu_hr_recruitment_configuration"
+              action="hc_status_info" />
+  </data>
+</odoo>

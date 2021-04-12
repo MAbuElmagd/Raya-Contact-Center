@@ -1,24 +1,58 @@
 <odoo>
-    <data>
-<!--
-        <template id="listing">
-          <ul>
-            <li t-foreach="objects" t-as="object">
-              <a t-attf-href="#{ root }/objects/#{ object.id }">
-                <t t-esc="object.display_name"/>
-              </a>
-            </li>
-          </ul>
-        </template>
-        <template id="object">
-          <h1><t t-esc="object.display_name"/></h1>
-          <dl>
-            <t t-foreach="object._fields" t-as="field">
-              <dt><t t-esc="field"/></dt>
-              <dd><t t-esc="object[field]"/></dd>
-            </t>
-          </dl>
-        </template>
--->
-    </data>
+  <data>
+    <record id='notify_hold' model='ir.cron'>
+                <field name='name'>Quality Hold Notification</field>
+                <field name='model_id' ref='hr_recruitment.model_hr_applicant'/>
+                <field name='state'>code</field>
+                <field name='code'>
+                model.notify_quality_hold()
+                </field>
+                <field name='interval_number'>1</field>
+                <field name='interval_type'>days</field>
+                <field name='numbercall'>-1</field>
+                <field name="priority">0</field>
+                <field name="doall" eval="True"/>
+                <field name="nextcall" eval="(datetime.now() + timedelta(days=0)).strftime('%Y-%m-%d 21:59:59')" />
+                <field name="user_id" ref="base.user_root" />
+                <field name="active" eval="True"/>
+            </record>
+
+    <record id="email_template_quality_hold_notify" model="mail.template">
+      <field name="name">Notification: Quality Hold Applications</field>
+      <field name="model_id" ref="base.model_res_users"></field>
+      <!-- <field name="email_from">${object.user_id.email_formatted |safe}</field>                                 -->
+      <!-- <field name="partner_to">${object.targeted_partner |safe}</field> -->
+      <field name="email_to">${object.email |safe}</field>
+      <field name="quality_hold_notification">True</field>
+      <!-- <field name="email_cc">${object.manager.work_email |safe}</field>                              -->
+      <field name="subject"> Notification: Quality Hold Applications</field>
+      <field name="body_html" type="html">
+        <div style="margin: 0px; padding: 0px;">
+           Dear ${object.name},
+           <p>
+              <br/><br/>
+              You can find the current quality hold applications in the table below.<br/>
+         </p>
+           <table>
+              <tbody>
+                 % for line in object.partner_id.quality_hold_applications:
+                 <tr>
+                    <td>${line.name}</td>
+                                <td>${line.national_id}</td>
+                    <br/>
+                 </tr>
+                 % endfor
+              </tbody>
+           </table>
+          <br/>
+
+                    Thank you,
+                    % if object.signature:
+                        <br />
+                        ${object.signature | safe}
+                    % endif
+                  </div>
+      </field>
+    </record>
+  </data>
 </odoo>

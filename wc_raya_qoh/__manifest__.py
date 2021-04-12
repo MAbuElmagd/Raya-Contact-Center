@@ -20,7 +20,7 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','hr','hr_recruitment','wc_ta_extention','wc_hiring_request',],
+    'depends': ['base','hr','hr_recruitment','wc_ta_extention','wc_hiring_request','hr_skill_qualification','employee_kpi','wc_raya_hc_status',],
 
     # always loaded
     'data': [

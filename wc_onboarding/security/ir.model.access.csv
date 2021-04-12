@@ -20,3 +20,4 @@ access_onboarding_online_share_clone_onboarding,onboarding.online.share.clone.on
 access_g_description,g.description,model_g_description,group_onboarding_team,1,1,1,1
 access_entry_checklist_description,entry.checklist.description,model_entry_checklist_description,group_onboarding_team,1,1,1,1
 access_onbooarding_meeting,onboarding_meeting,model_onboarding_meeting_date,group_onboarding_team,1,1,1,1
+access_onboarding_bulk,onboarding_bulk,model_onboarding_bulk,group_onboarding_team,1,1,1,1

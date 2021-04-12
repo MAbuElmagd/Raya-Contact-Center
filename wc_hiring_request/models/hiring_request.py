@@ -20,117 +20,140 @@ class hrApplicant(models.Model):
             initial_stage = self.env['hr.recruitment.stage'].search([('job_category','=',self.job_category),('is_initial','=',True)])
             if self.stage_id != initial_stage:
                 raise ValidationError(_('You cannot move more applications through stages, You can only return to the inial stage or archive the application The Hiring Request required employees are Hired'))
+        if self.job_category == 'talent':
+            hiring_stage = initial_stage = self.env['hr.recruitment.stage'].search([('job_category','=','talent'),('is_final','=',True)])
+            if self.stage_id == hiring_stage:
+                for value in self.nontechskill_talent_ids:
+                    if not value.nontech_applicant_talent_level:
+                        raise ValidationError(_("You have to Fill all The Applicant's Skill Levels"))
+                for value in self.techskill_talent_ids:
+                    if not value.tech_applicant_talent_level:
+                        raise ValidationError(_("You have to Fill all The Applicant's Skill Levels"))
+                for value in self.language_level_talent_ids:
+                    if not value.lang_applicant_talent_level:
+                        raise ValidationError(_("You have to Fill all The Applicant's Skill Levels"))
 
+    applicant_file_id =fields.Many2many(comodel_name="ir.attachment",
+                                relation="m2m_ir_applicant_id_rel",
+                                column1="m2m_id",
+                                column2="applicant_file_id", string="Applicant ID")
 
+    @api.constrains('applicant_file_id')
+    def constrain_assessment_test(self):
+        if len(self.applicant_file_id) > 1 :
+                raise UserError(_('You can only upload one Applicant ID !'))
+
+    @api.onchange('hr_id')
     def create_employee_from_applicant(self):
         """ Create an hr.employee from the hr.applicants """
-        employee = False
-        for applicant in self:
-            contact_name = False
-            if applicant.partner_id:
-                address_id = applicant.partner_id.address_get(['contact'])['contact']
-                contact_name = applicant.partner_id.display_name
-            else:
-                if not applicant.partner_name:
-                    raise UserError(_('You must define a Contact Name for this applicant.'))
-                new_partner_id = self.env['res.partner'].create({
-                    'is_company': False,
-                    'type': 'private',
-                    'name': applicant.partner_name,
-                    'email': applicant.email_from,
-                    'phone': applicant.partner_phone,
-                    'mobile': applicant.partner_mobile
-                })
-                applicant.partner_id = new_partner_id
-                address_id = new_partner_id.address_get(['contact'])['contact']
-            if applicant.partner_name or contact_name:
+        if self.hr_id and self.final and self.created_employee == False:
+            employee = False
+            for applicant in self:
+                contact_name = False
+                if applicant.partner_id:
+                    address_id = applicant.partner_id.address_get(['contact'])['contact']
+                    contact_name = applicant.partner_id.display_name
+                else:
+                    if not applicant.partner_name:
+                        raise UserError(_('You must define a Contact Name for this applicant.'))
+                    new_partner_id = self.env['res.partner'].create({
+                        'is_company': False,
+                        'type': 'private',
+                        'name': applicant.partner_name,
+                        'email': applicant.email_from,
+                        'phone': applicant.partner_phone,
+                        'mobile': applicant.partner_mobile
+                    })
+                    applicant.partner_id = new_partner_id
+                    address_id = new_partner_id.address_get(['contact'])['contact']
+                if applicant.partner_name or contact_name:
 
-                skills = []
-                flag = True
+                    skills = []
+                    flag = True
 
-                for value in applicant.nontechskill_talent_ids:
-                    if not value.nontech_applicant_talent_level:
-                        raise ValidationError(_('Fill all Applicant Level'))
+                    for value in applicant.nontechskill_talent_ids:
+                        if not value.nontech_applicant_talent_level:
+                            raise ValidationError(_('Fill all Applicant Level'))
 
-                    skills.append((0,0,{
-                                    'skill_type_id':value.skill_id.skill_type_id.id,
-                                    'skill_id': value.skill_id.id,
-                                    'level_progress': value.nontech_applicant_talent_level.level_progress,
-                                    'skill_level_id':value.nontech_applicant_talent_level.id
-                                }))
-                    if value.skill_id.id == applicant.skill_id.id:
-                        flag = False
-                for value in applicant.techskill_talent_ids:
-                    if not value.tech_applicant_talent_level:
-                        raise ValidationError(_('Fill all Applicant Level'))
+                        skills.append((0,0,{
+                                        'skill_type_id':value.skill_id.skill_type_id.id,
+                                        'skill_id': value.skill_id.id,
+                                        'level_progress': value.nontech_applicant_talent_level.level_progress,
+                                        'skill_level_id':value.nontech_applicant_talent_level.id
+                                    }))
+                        if value.skill_id.id == applicant.skill_id.id:
+                            flag = False
+                    for value in applicant.techskill_talent_ids:
+                        if not value.tech_applicant_talent_level:
+                            raise ValidationError(_('Fill all Applicant Level'))
 
-                    skills.append((0,0,{
-                                    'skill_type_id':value.skill_id.skill_type_id.id,
-                                    'skill_id': value.skill_id.id,
-                                    'level_progress': value.tech_applicant_talent_level.level_progress,
-                                    'skill_level_id':value.tech_applicant_talent_level.id
-                                }))
-                    if value.skill_id.id == applicant.skill_id.id:
-                        flag = False
-                for value in applicant.language_level_talent_ids:
-                    if not value.lang_applicant_talent_level:
-                        raise ValidationError(_('Fill all Applicant Level'))
+                        skills.append((0,0,{
+                                        'skill_type_id':value.skill_id.skill_type_id.id,
+                                        'skill_id': value.skill_id.id,
+                                        'level_progress': value.tech_applicant_talent_level.level_progress,
+                                        'skill_level_id':value.tech_applicant_talent_level.id
+                                    }))
+                        if value.skill_id.id == applicant.skill_id.id:
+                            flag = False
+                    for value in applicant.language_level_talent_ids:
+                        if not value.lang_applicant_talent_level:
+                            raise ValidationError(_('Fill all Applicant Level'))
 
-                    skills.append((0,0,{
-                                    'skill_type_id':value.skill_id.skill_type_id.id,
-                                    'skill_id': value.skill_id.id,
-                                    'level_progress': value.lang_applicant_talent_level.level_progress,
-                                    'skill_level_id':value.lang_applicant_talent_level.id
-                                }))
-                    if value.skill_id.id == applicant.skill_id.id:
-                        flag = False
+                        skills.append((0,0,{
+                                        'skill_type_id':value.skill_id.skill_type_id.id,
+                                        'skill_id': value.skill_id.id,
+                                        'level_progress': value.lang_applicant_talent_level.level_progress,
+                                        'skill_level_id':value.lang_applicant_talent_level.id
+                                    }))
+                        if value.skill_id.id == applicant.skill_id.id:
+                            flag = False
 
 
-                if applicant.excel_check:
-                    if applicant.excel_line_ids:
+                    if applicant.excel_check:
+                        if applicant.excel_line_ids:
 
-                        if flag:
-                            total=0
-                            for value in applicant.excel_line_ids:
-                                total+=value.new_mark
-                            skills.append((0,0,{
-                                                'skill_type_id':applicant.skill_id.skill_type_id.id,
-                                                'skill_id': applicant.skill_id.id,
-                                                'current_degree': total,
-                                                'skill_level_id':applicant.skill_level_id.id
-                                            }))
+                            if flag:
+                                total=0
+                                for value in applicant.excel_line_ids:
+                                    total+=value.new_mark
+                                skills.append((0,0,{
+                                                    'skill_type_id':applicant.skill_id.skill_type_id.id,
+                                                    'skill_id': applicant.skill_id.id,
+                                                    'current_degree': total,
+                                                    'skill_level_id':applicant.skill_level_id.id
+                                                }))
 
-                employee_data = {
-                    'default_name': applicant.partner_name or contact_name,
-                    'default_job_id': applicant.job_id.id,
-                    'default_job_title': applicant.job_id.name,
-                    'address_home_id': address_id,
-                    'default_department_id': applicant.department_id.id or False,
-                    'default_address_id': applicant.company_id and applicant.company_id.partner_id
-                            and applicant.company_id.partner_id.id or False,
-                    'default_hr_id':applicant.hr_id,
-                    'default_work_email': '',
-                    'default_work_phone': '',
-                    'form_view_initial_mode': 'edit',
-                    'default_applicant_id': applicant.ids,
-                    'default_identification_id':applicant.national_id,
-                    'default_project':applicant.project.id,
-                    'default_country_id':applicant.nationality.id,
-                    'default_gender':applicant.gender,
-                    'default_birthday':applicant.date_of_birth,
-                    'default_military_status':applicant.military_status,
-                    'default_employee_skill_ids': skills,
+                    employee_data = {
+                        'default_name': applicant.partner_name or contact_name,
+                        'default_job_id': applicant.job_id.id,
+                        'default_job_title': applicant.job_id.name,
+                        'address_home_id': address_id,
+                        'default_department_id': applicant.department_id.id or False,
+                        'default_address_id': applicant.company_id and applicant.company_id.partner_id
+                                and applicant.company_id.partner_id.id or False,
+                        'default_hr_id':applicant.hr_id,
+                        'default_work_email': '',
+                        'default_work_phone': '',
+                        'form_view_initial_mode': 'edit',
+                        'default_applicant_id': applicant.ids,
+                        'default_identification_id':applicant.national_id,
+                        'default_project':applicant.project.id,
+                        'default_country_id':applicant.nationality.id,
+                        'default_gender':applicant.gender,
+                        'default_birthday':applicant.date_of_birth,
+                        'default_military_status':applicant.military_status,
+                        'default_employee_skill_ids': skills,
 
-                    'default_education_ids':applicant.education_ids.ids,
-                    'default_certification_ids':applicant.certification_ids.ids,
-                    'default_profession_ids':applicant.profession_ids.ids,
+                        'default_education_ids':applicant.education_ids.ids,
+                        'default_certification_ids':applicant.certification_ids.ids,
+                        'default_profession_ids':applicant.profession_ids.ids,
 
-                    }
+                        }
 
-        dict_act_window = self.env['ir.actions.act_window']._for_xml_id('hr.open_view_employee_list')
-        dict_act_window['context'] = employee_data
-        applicant.created_employee = True
-        return dict_act_window
+            dict_act_window = self.env['ir.actions.act_window']._for_xml_id('hr.open_view_employee_list')
+            dict_act_window['context'] = employee_data
+            applicant.created_employee = True
+            return dict_act_window
 
     national_id = fields.Char(string="National id", required=True ,size=14)
     @api.constrains('national_id')
@@ -242,6 +265,7 @@ class HiringRequest(models.Model):
     _description = "Hiring Request"
     _inherit = ["mail.thread", "mail.activity.mixin"]
 
+
     finished_hiring_request_state = fields.Boolean(compute="_compute_finished_hiring_request_state")
     def _compute_finished_hiring_request_state(self):
         for this in self:
@@ -272,6 +296,23 @@ class HiringRequest(models.Model):
     job = fields.Many2one('hr.job',string="Job Title",required=True)
     project = fields.Many2one('rcc.project')
     total_heads = fields.Integer(string="Total Request Heads",required=True)
+    actual_hired = fields.Integer(string="Actual Hired", compute="_compute_actual_hired")
+    actual_hired_n_c = fields.Integer(string="Actual Hired")
+    def _compute_actual_hired(self):
+        for this in self:
+            if this.category == 'Talent Acq':
+                hired_stage = self.env['hr.recruitment.stage'].search([('job_category','=','talent'),('is_final','=',True)])
+                applicants = self.env['hr.applicant'].search([('stage_id','=',hired_stage.id),('hiring_request','=',this.id)])
+                this.actual_hired = len(applicants)
+                this.actual_hired_n_c = len(applicants)
+            elif this.category == 'operational':
+                hired_stage = self.env['hr.recruitment.stage'].search([('job_category','=','operational'),('is_o_final','=',True)])
+                applicants = self.env['hr.applicant'].search([('stage_id','=',hired_stage.id),('hiring_request','=',this.id)])
+                this.actual_hired = len(applicants)
+                this.actual_hired_n_c = len(applicants)
+            else:
+                this.actual_hired = 0
+                this.actual_hired_n_c = 0
     total_males = fields.Integer(string="Total Males",required=True)
     total_females = fields.Integer(string="Total Females",required=True)
     requested_due_dates = fields.Date(string="Requested Due Dates")

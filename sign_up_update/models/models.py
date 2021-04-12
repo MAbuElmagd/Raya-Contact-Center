@@ -4,7 +4,7 @@ import logging
 class ResPartner(models.Model):
 	_inherit = 'res.partner'
 
-	national_id = fields.Char(string='National ID')	
+	national_id = fields.Char(string='National ID',size=14)	
 
 _logger = logging.getLogger(__name__)
 

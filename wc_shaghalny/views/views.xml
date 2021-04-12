@@ -1,0 +1,112 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+
+    <record model="ir.ui.view" id="wc_shaghalny_applicant">
+      <field name="name">wc_shaghalny_applicant</field>
+      <field name="model">hr.applicant</field>
+      <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form"/>
+      <field name="arch" type="xml">
+        <field name="department_id" position="before">
+          <field name="date_of_screening" attrs="{'invisible':[('job_category','!=','operational')]}"/>
+          <field name="external_referrals" attrs="{'invisible':[('job_category','!=','operational')]}"/>
+          <field name="walk_ins" attrs="{'invisible':[('job_category','!=','operational')]}"/>
+        </field>
+      </field>
+    </record>
+
+    <record id="tree_report_shaghalny" model="ir.ui.view">
+      <field name="name">Shaghlny Report</field>
+      <field name="model">wc.applicant.shaghlny</field>
+      <field name="arch" type="xml">
+        <tree create="0" import="0" js_class="shaghalny_report_list">
+          <field name="three_days_training" string="Month"/>
+          <field name="date_of_screening" string="Date of Screening"/>
+          <field name="referred_by_employee" string="Employee Name"/>
+          <field name="referred_by_hr_id" string="HRID"/>
+          <field name="referred_by_employee_grade" string="Grade"/>
+          <field name="partner_name" string="Name of referral friend"/>
+          <field name="partner_phone" string="Mobile of referral Friend"/>
+          <field name="national_id" string="National ID"/>
+          <field name="ninty_days_training" string="HC date"/>
+          <field name="tarinee_status" string="Last HC"/>
+          <field name="project" string="Project"/>
+          <field name="english_language" string="English profile"/>
+          <field name="fifty_three_days_training" string="First"/>
+          <field name="fifty_ninty_days_training" string="Second"/>
+          <!-- <field name="total" string="Total Amount"/> -->
+        </tree>
+      </field>
+    </record>
+    <record id="summary_report_shaghalny" model="ir.ui.view">
+      <field name="name">Shaghlny Report Summary</field>
+      <field name="model">wc.applicant.shaghlny</field>
+      <field name="arch" type="xml">
+        <tree string="Shaghlny Report Summary" create="0">
+          <field name="referred_by_hr_id" string="HRID"/>
+          <field name="partner_name" string="Name"/>
+          <!-- <field name="total" string="Total Amount" sum="total"/> -->
+          <field name="referred_by_employee_grade" string="Grade"/>
+          <field name="project" string="Project"/>
+          <!-- <field name="fifty_three_days_training" string="Sum of First Payment" sum="fifty_three_days_training"/>
+          <field name="fifty_ninty_days_training" string="Sum of Second Payment" sum="fifty_ninty_days_training"/> -->
+        </tree>
+      </field>
+    </record>
+    <record id="action_report_shaghalny" model="ir.actions.act_window">
+    <field name="name">Shaghlny Report</field>
+    <field name="res_model">wc.applicant.shaghlny</field>
+    <field name="view_mode">tree</field>
+    <field name="view_id" ref="tree_report_shaghalny"/>
+    </record>
+    <record id="action_report_shaghalny_summary" model="ir.actions.act_window">
+    <field name="name">Shaghlny Report Summary</field>
+    <field name="res_model">wc.applicant.shaghlny</field>
+    <field name="view_mode">tree</field>
+    <field name="view_id" ref="summary_report_shaghalny"/>
+    </record>
+    <menuitem name="Shaghlny Report" id="menu_report_shaghalny" parent="hr_recruitment.report_hr_recruitment" action="action_report_shaghalny" sequence="51"/>
+
+    <!-- actions opening views on models -->
+<!--
+    <record model="ir.actions.act_window" id="wc_shaghalny.action_window">
+      <field name="name">wc_shaghalny window</field>
+      <field name="res_model">wc_shaghalny.wc_shaghalny</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+-->
+
+    <!-- server action to the one above -->
+<!--
+    <record model="ir.actions.server" id="wc_shaghalny.action_server">
+      <field name="name">wc_shaghalny server</field>
+      <field name="model_id" ref="model_wc_shaghalny_wc_shaghalny"/>
+      <field name="state">code</field>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "tree,form",
+          "res_model": model._name,
+        }
+      </field>
+    </record>
+-->
+
+    <!-- Top menu item -->
+<!--
+    <menuitem name="wc_shaghalny" id="wc_shaghalny.menu_root"/>
+-->
+    <!-- menu categories -->
+<!--
+    <menuitem name="Menu 1" id="wc_shaghalny.menu_1" parent="wc_shaghalny.menu_root"/>
+    <menuitem name="Menu 2" id="wc_shaghalny.menu_2" parent="wc_shaghalny.menu_root"/>
+-->
+    <!-- actions -->
+<!--
+    <menuitem name="List" id="wc_shaghalny.menu_1_list" parent="wc_shaghalny.menu_1"
+              action="wc_shaghalny.action_window"/>
+    <menuitem name="Server to list" id="wc_shaghalny" parent="wc_shaghalny.menu_2"
+              action="wc_shaghalny.action_server"/>
+-->
+  </data>
+</odoo>

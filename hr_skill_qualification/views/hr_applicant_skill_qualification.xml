@@ -5,7 +5,10 @@
 			<field name="model">hr.applicant</field>
 			<field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form" />
 			<field name="arch" type="xml">
+
 				<xpath expr="//group[2]" position="inside">
+				<field name="main_source" invisible="1"/>
+				<field name="main_source_n_c" invisible="1"/>
 					<field name="source_id" />
 					<field name="project" />
 					<field name="full_name_arabic" />
@@ -19,7 +22,6 @@
 					<field name="emp_flag" invisible="1"/>
 				</xpath>
 				<xpath expr="//group[3]" position="inside">
-					<field name="job_code" />
 					<field name="years_of_experience" />
 					<field name="sales_experience" />
 				</xpath>
@@ -28,13 +30,14 @@
 						<page name="hr_skills" string="HR Skills" attrs="{'invisible':[('job_category','=','talent')]}">
 							<separator string="Non Technical Skills" />
 							<field name="nontechskill_ids">
-								<tree editable="Top" delete="false" create="false">
-									<field name="nontech_id" readonly="1" force_save="1"/>
-									<field name="levels" readonly="1" force_save="1" string="Benchmark"/>
+								<tree editable="Top" delete="true" create="true">
+									<field name="nontech_id" readonly="0" force_save="1"/>
+									<field name="levels" readonly="0" force_save="1"/>
+									 <!-- string="Benchmark" -->
 									<!-- attrs="{'column_invisible':[('parent.emp_flag','!=',False)]}" -->
-									<field name ="applicant_level" />
+									<!-- <field name ="applicant_level" />
 									<field name ="employee_level" force_save="1" attrs="{'column_invisible':[('parent.emp_flag','=',False)]}"/>
-									<field name ="validation_date" force_save="1" attrs="{'column_invisible':[('parent.emp_flag','=',False)]}"/>
+									<field name ="validation_date" force_save="1" attrs="{'column_invisible':[('parent.emp_flag','=',False)]}"/> -->
 								</tree>
 								<form>
 									<group col="4">
@@ -47,13 +50,14 @@
 						<page name="tech_skills" string="Technichal Skills" attrs="{'invisible':[('job_category','=','talent')]}">
 							<separator string="Technical Skills" />
 							<field name="techskill_ids">
-								<tree editable="Top" delete="false" create="false">
-									<field name="tech_id" readonly="1" force_save="1"/>
-									<field name="levels" readonly="1" force_save="1" string="Benchmark"/>
+								<tree editable="Top" delete="true" create="true">
+									<field name="tech_id" readonly="0" force_save="1"/>
+									<field name="levels" readonly="0" force_save="1"/>
+									 <!-- string="Benchmark" -->
 									 <!-- attrs="{'column_invisible':[('parent.emp_flag','!=',False)]}" -->
-									<field name ="applicant_level"/>
+									<!-- <field name ="applicant_level"/>
 									<field name ="employee_level" force_save="1" attrs="{'column_invisible':[('parent.emp_flag','=',False)]}"/>
-									<field name ="validation_date" force_save="1" attrs="{'column_invisible':[('parent.emp_flag','=',False)]}"/>
+									<field name ="validation_date" force_save="1" attrs="{'column_invisible':[('parent.emp_flag','=',False)]}"/> -->
 								</tree>
 								<form>
 									<group col="4">
@@ -66,13 +70,18 @@
 						<page name="lang_level_pg" string="Language Levels" attrs="{'invisible':[('job_category','=','talent')]}">
 							<separator string="Language Skills Level"/>
 							<field name="language_level_ids">
-								<tree editable="top" delete="false" create="false">
-									 <field name="tech_id" string="Language Skills"  readonly="1" force_save="1"/>
-									 <field name ="levels" string="Benchmark"  readonly="1" force_save="1"/>
+								<tree editable="top" delete="true" create="true">
+									 <field name="tech_id" string="Language Skills"  readonly="0" force_save="1"/>
+									 <field name ="levels" readonly="0" force_save="1"/>
+									 <!-- string="Benchmark"   -->
 									  <!-- attrs="{'column_invisible':[('parent.emp_flag','!=',False)]}" -->
-									 <field name ="applicant_level"/>
+									 <!-- <field name ="applicant_level"/>
 									 <field name ="employee_level" force_save="1" attrs="{'column_invisible':[('parent.emp_flag','=',False)]}"/>
-									 <field name ="validation_date" force_save="1" attrs="{'column_invisible':[('parent.emp_flag','=',False)]}"/>
+									 <field name ="validation_date" force_save="1" attrs="{'column_invisible':[('parent.emp_flag','=',False)]}"/> -->
+									 <field name ="pronunciation" force_save="1"/>
+	 								<field name ="grammer" force_save="1"/>
+	 								<field name ="fluency" force_save="1"/>
+	 								<field name ="understanding_vocab" force_save="1"/>
 
 								</tree>
 							</field>
@@ -84,9 +93,9 @@
 							<field name="nontech" invisible="1"/>
 							<separator string="Non Technical Skills" />
 							<field name="nontechskill_talent_ids">
-								<tree editable="bottom" delete="false" create="false">
+								<tree editable="bottom" delete="true" create="true">
 									<field name="skill_type_id" invisible="1" required="True"/>
-									<field name="skill_id" readonly="1" force_save="1"/>
+									<field name="skill_id" domain="[('skill_type_id','=',parent.nontech)]"  readonly="0" force_save="1"/>
 									<field name="skill_level_id" readonly="1" force_save="1" string="Benchmark"/>
 									 <!-- attrs="{'column_invisible':[('parent.emp_flag','!=',False)]}" -->
 									<field name ="nontech_applicant_talent_level" string="Applicant Level" domain="[('id','in',nontech_level_domain)]"/>
@@ -101,9 +110,9 @@
 							<field name="tech" invisible="1"/>
 							<separator string="Technical Skills" />
 							<field name="techskill_talent_ids">
-								<tree editable="bottom" delete="false" create="false">
+								<tree editable="bottom" delete="true" create="true">
 									<field name="skill_type_id" invisible="1" required="True"/>
-									<field name="skill_id" readonly="1" force_save="1"/>
+									<field name="skill_id" domain="[('skill_type_id','=',parent.tech)]" readonly="0" force_save="1"/>
 									<field name="skill_level_id" readonly="1" force_save="1" string="Benchmark"/>
 									 <!-- attrs="{'column_invisible':[('parent.emp_flag','!=',False)]}" -->
 									<field name ="tech_applicant_talent_level" string="Applicant Level" domain="[('id','in',tech_level_domain)]"/>
@@ -117,9 +126,9 @@
 							<field name="lang" invisible="1"/>
 							<separator string="Language Skills Level"/>
 							<field name="language_level_talent_ids">
-								<tree editable="bottom" delete="false" create="false">
+								<tree editable="bottom" delete="true" create="true">
 									 <field name="skill_type_id" invisible="1" required="True"/>
-						       <field name="skill_id" string="Language Skills"  readonly="1" force_save="1"/>
+						       <field name="skill_id" string="Language Skills" domain="[('skill_type_id','=',parent.lang)]" readonly="0" force_save="1"/>
 									 <field name ="skill_level_id" string="Benchmark"  readonly="1" force_save="1"/>
 									  <!-- attrs="{'column_invisible':[('parent.emp_flag','!=',False)]}" -->
 						       <field name ="lang_applicant_talent_level" string="Applicant Level" domain="[('id','in',lang_level_domain)]"/>
@@ -141,12 +150,8 @@
 								<field name ="faculty" readonly="1" force_save="1" />
 								<field name ="english_status" readonly="1" force_save="1" />
 								<!-- new for report -->
-								<field name ="pronunciation" force_save="1"/>
-								<field name ="grammer" force_save="1"/>
-								<field name ="fluency" force_save="1"/>
-								<field name ="understanding_vocab" force_save="1"/>
 
-								
+
 								<field name="social_insurance" readonly="1" force_save="1" />
 								<field name="worked_4_raya" readonly="1" force_save="1" />
 								<field name="pc_laptop" readonly="1" force_save="1" />
@@ -245,21 +250,33 @@
 							<group>
 								<field name="joined_training"/>
 								<field name="not_joining_reason" attrs="{'invisible':[('joined_training','!=','no')]}"/>
-
-
 								<field name="training_start_date" />
 								<field name="tarinee_status" />
-
 								<field name="drop_date" attrs="{'invisible':[('tarinee_status','!=','dropped')]}"/>
 								<field name="drop_reason" attrs="{'invisible':[('tarinee_status','!=','dropped')]}"/>
-
-
 								<field name="quality_of_hiring_date" />
+							</group>
+							<!-- <separator string="Trainee Certified " />
+							<group>
+								<field name="certified" />
+								<field name="a90_days_hired" readonly="1" />
+							</group> -->
+						</page>
+						<page name="agency_payment" string="Agency Payment" attrs="{'invisible':[('job_category','!=','operational'),('agency','=',False)]}" >
+							<field name="agency" invisible="1"/>
+							<group>
+								<group>
+									<field name="a50_certified" force_save="1"  readonly="1" />
+									<field name="a50_certified_payment" widget="boolean_toggle" force_save="1" readonly="1" attrs="{'invisible':[('a50_certified','!=','eligible')]}"/>
+									<field name="a50a90_days_hired" readonly="1"  />
+									<field name="a50a90_days_hired_payment" widget="boolean_toggle" force_save="1" readonly="1" attrs="{'invisible':[('a50a90_days_hired','!=','eligible')]}"/>
+								</group>
 							</group>
 						</page>
 						<page string="Feedback" name="feedback" >
 							<separator string="Interview Feedback" />
 							<group cols="4">
+								<field name="hr_interviwe_date" />
 								<field name="first_interview_feedback" />
 								<field name="first_interview_feedback_reason" />
 
@@ -272,7 +289,6 @@
 								<field name="job_offer_feedback" />
 								<field name="job_offer_feedback_reason" />
 
-								<field name="sector_projects_type" />
 								<field name="date_of_signing" />
 								<field name="hired" />
 								<field name="date_of_hiring" />

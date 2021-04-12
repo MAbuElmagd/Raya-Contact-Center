@@ -11,57 +11,47 @@
   <field name="body_html" type="html">                                    
     <div style="margin: 0px; padding: 0px;">
     <!-- Dear ${object.emp_id.name},                                         -->
-     <pre> Dear Assessment Candidates:
+     <pre style="font-size: 15px; font-family: Calibri; color:#44546A;"> Dear Assessment Candidates:
 
- 
+Welcome to RCC’s Assessment Center and congratulations for being selected to be part of our upcoming 
+Assessment series. One of our core values is to continuously develop our employees’ skills and abilities,
+ as vital resources within our organization, and ensure their career development is well planned.
 
-Welcome to RCC’s Assessment Center and congratulations for being selected to be part of our upcoming Assessment series. One of our core values is to continuously develop our employees’ skills and abilities, as vital resources within our organization, and ensure their career development is well planned.
-
- 
-
-You are cordially invited to an <b>Assessment Day</b>, full of simulation techniques, including exercises such as Psychometrics, presentations, group discussion and role play.
-
- 
+You are cordially invited to an <b>Assessment Day</b>, full of simulation techniques, including exercises such as 
+Psychometrics, presentations, group discussion and role play.
 
 <b>Assessment Day Benefits:</b>
-
-1.Demonstrating your areas of strengths as well those in need of development to professionally develop them 
-2.We will be tackling RCC competencies and considering your current roles and responsibilities within your scope as guided by the updated job description. 
- 
+1.Demonstrating your areas of strengths as well those in need of development to professionally 
+develop them 
+2.We will be tackling RCC competencies and considering your current roles and responsibilities 
+within your scope as guided by the updated job description. 
 
 <b>Equipment you will need:</b>
-
 1.RAYA ID
 2.Stationary: pen, marker, notepad 
 3.Calculator
-4.<b><i>For Virtual Assessments :</i></b> Laptop with a working Cam , MIC and with the following applications installed and tested from your side a day prior our assessment (Zoom Application , Outlook _to receive &amp; send exercises results _ , PowerPoint , excel &amp; MS word applications)
+4.<b><i>For Virtual Assessments :</i></b> Laptop with a working Cam , MIC and with the following applications 
+installed and tested from your side a day prior our assessment (Zoom Application , Outlook _to 
+receive &amp; send exercises results _ , PowerPoint , excel &amp; MS word applications)
 5.Your PROMPTNESS (never be late) 
 6.Your Positive ENERGY
  
-
 <b>Important Points to consider:</b>
-
-1.Take COVID-19 safety precautions and ensure <i>wearing your mask/shield at all times</i>, have your hand sanitizer available, and ensure social distancing. 
+1.Take COVID-19 safety precautions and ensure <i>wearing your mask/shield at all times</i>, have your 
+hand sanitizer available, and ensure social distancing. 
 2.<b>FREE</b> your day agenda from all meetings/calls and delegate your team members 
 3.Your mobile will be closed all day 
 4.Dress-code: smart casual – comfortable ;) 
- 
 
 <b>Final Outcome:</b>
-
 1.Personalized report for your assessment results (valid for one year) 
-2.9-box grid given to your direct manager to assess your placement within the team as a whole (In some assessments sent to the Direct Manager)
- 
+2.9-box grid given to your direct manager to assess your placement within the team as a whole (In 
+some assessments sent to the Direct Manager)
 
 Please mark your calendars and be prepared for a FUN DAY.
 
- 
-
 Good luck!
-
-</pre>
-     
-    <!-- <table border="0" cellpadding="0" cellspacing="0"><tr>
+<table border="0" cellpadding="0" cellspacing="0"><tr>
         % if not recurrent:
         <td width="130px;">
             <div style="border-top-left-radius: 3px; border-top-right-radius: 3px; font-size: 12px; border-collapse: separate; text-align: center; font-weight: bold; color: #ffffff; min-height: 18px; background-color: #875A7B; border: 1px solid #875A7B;">
@@ -79,8 +69,8 @@ Good luck!
         </td>
         <td width="20px;"/>
         % endif
-    </tr></table> -->
-
+    </tr></table>
+</pre>
     </div>                                
   </field>                            
 </record>
@@ -95,7 +85,7 @@ Good luck!
   <field name="subject"> Assessment Final Report for your application for the ${object.job_id.name} Position</field>                     
   <field name="body_html" type="html">                                    
     <div style="margin: 0px; padding: 0px;">                        
-     <pre>
+     <pre style="font-size: 15px; font-family: Calibri; color:#44546A;">
 Dear Applicant: 
 
 We are glad you got a chance to join our <b>Assessment Center journey</b> and thank you for “giving it your best shot along this ride”… well done <b style="font-size: 20px;">&#9786;</b>

@@ -1,0 +1,14 @@
+<odoo>
+       
+<data >
+<record id="internal_transfer" model="ir.module.category">
+        <field name="name">Internal Transfer</field>
+      <field name="sequence">1</field>
+          </record>
+
+      <record id="internal_transfer_approval" model="res.groups">
+            <field name="name">Internal Transfer Approval</field>
+            <field name="category_id" ref="internal_transfer"/>   
+        </record>
+  </data>
+</odoo>

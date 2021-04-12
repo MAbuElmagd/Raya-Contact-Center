@@ -33,8 +33,6 @@ class HrTalent(models.Model):
 
     @api.onchange('skill_id')
     def _update_levels_domain(self):
-        print(self.skill_type_id.name)
-        print(self.skill_id.name)
 
         if self.skill_level_id.id == False:
             if self.skill_type_id.id and self.skill_id.id:
@@ -55,8 +53,6 @@ class HrTalent(models.Model):
                 for value in result:
                     ids.append(value[0])
 
-                print("in the method to end")
-                print("in the method to end")
 
                 return {
                     'domain': {
@@ -91,7 +87,7 @@ class raya_skill_hire(models.Model):
     nontechskill_ids = fields.One2many(
         'emp.nontech.skills', 'hire_id', 'Non-Technical Skills')
     language_level_ids =  fields.One2many(
-        'emp.lang.skills', 'hire_id', 'Language Level')
+        'emp.lang.skills2', 'hire_id', 'Language Level')
 
     # Talent Skills
     techskill_talent_ids = fields.One2many(
@@ -124,11 +120,11 @@ class raya_skill_hire(models.Model):
         }
     @api.onchange('job')
     def update_lines(self):
-        
+
         if self.job:
-            self.techskill_ids = self.job.techskill_ids
-            self.nontechskill_ids = self.job.nontechskill_ids
-            self.language_level_ids = self.job.language_level_ids
+            # self.techskill_ids = self.job.techskill_ids
+            # self.nontechskill_ids = self.job.nontechskill_ids
+            # self.language_level_ids = self.job.language_level_ids
 
             # self.techskill_talent_ids = self.job.techskill_talent_ids
             # self.nontechskill_talent_ids = self.job.nontechskill_talent_ids
@@ -209,7 +205,7 @@ class HireNonTechSkills(models.Model):
     hire_id = fields.Many2one('hiring.request',string="Project")
 
 class HireTechSkills(models.Model):
-    _inherit = 'emp.lang.skills'
+    _inherit = 'emp.lang.skills2'
     _description = 'Employee language levels'
 
     hire_id = fields.Many2one('hiring.request',string="Project")
@@ -237,9 +233,8 @@ class raya_skill_applicant(models.Model):
     _inherit = 'hr.applicant'
 
 
+
     def _update_domains(self,row):
-        print(row.skill_type_id.name)
-        print(row.skill_id.name)
 
         # if row.skill_level_id.id == False:
         if row.skill_type_id.id and row.skill_id.id:
@@ -261,8 +256,6 @@ class raya_skill_applicant(models.Model):
                 ids.append(value[0])
 
             if row.skill_type_id.skill_type == 'non_technical':
-                print(row.skill_type_id.skill_type)
-                print(ids)
                 row.nontech_level_domain = [(5,)]
                 row.nontech_level_domain = [(6,0,ids)]
                 return {
@@ -271,8 +264,6 @@ class raya_skill_applicant(models.Model):
                     }
                 }
             if row.skill_type_id.skill_type == 'technical':
-                print(row.skill_type_id.skill_type)
-                print(ids)
                 row.tech_level_domain = [(5,)]
                 row.tech_level_domain = [(6,0,ids)]
                 return {
@@ -281,8 +272,6 @@ class raya_skill_applicant(models.Model):
                     }
                 }
             if row.skill_type_id.skill_type == 'language':
-                print(row.skill_type_id.skill_type)
-                print(ids)
                 row.lang_level_domain = [(5,)]
                 row.lang_level_domain = [(6,0,ids)]
                 return {

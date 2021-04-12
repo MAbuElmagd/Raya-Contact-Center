@@ -12,9 +12,12 @@
       <field name="type_id" position="after">
         <field name="black_listed" invisible="1"/>
         <field name="emp_id" string="Employee" force_save="1" readonly="1" attrs="{'invisible':[('emp_id','=',False)]}"/>
-        <field name="hr_id" force_save="1" attrs="{'invisible':[('emp_id','=',False),('is_final','!=',True)],'required':[('emp_id','=',False),('is_final','=',True)],'readonly':[('emp_id','!=',False)]}"/>
+        <field name="hr_id" force_save="1" attrs="{'invisible':[('final','!=',True),('emp_id','=',False)],'required':[('final','=',True),('emp_id','=',False)],'readonly':[('emp_id','!=',False)]}"/>
         <field name="manager" string="Manager" force_save="1" readonly="1" attrs="{'invisible':[('emp_id','=',False)]}"/>
-        <field name="applicant_quartile_type" string="Employee Skill Quartile" force_save="1" readonly="1" attrs="{'invisible':[('emp_id','=',False)]}"/>
+                  <field name="applicant_quartile_type" force_save="1" readonly="1" attrs="{'invisible':['|',('emp_id','=',False),('job_category','!=','talent')]}"/>
+<field name="is_o_final" invisible="1"/>
+<field name="is_o_initial" invisible="1"/>
+<field name="final" invisible="1"/>
         <field name="screening_check" invisible="1"/>
         <field name="interview_check" invisible="1"/>
         <field name="emp_project" attrs="{'invisible':[('emp_id','=',False)]}"/>
@@ -73,10 +76,10 @@
         <attribute name="attrs">{'readonly':['|',('black_listed','=',True),('is_final','=',True)]}</attribute>
         <attribute name="force_save">1</attribute>
       </field>
-      <field name="ref_user_id" position="attributes">
+      <!--<field name="ref_user_id" position="attributes">
         <attribute name="attrs">{'readonly':['|',('black_listed','=',True),('is_final','=',True)]}</attribute>
         <attribute name="force_save">1</attribute>
-      </field>
+      </field>-->
       <field name="accept_pipeline" position="attributes">
         <attribute name="attrs">{'readonly':['|',('black_listed','=',True),('is_final','=',True)]}</attribute>
         <attribute name="force_save">1</attribute>
@@ -189,7 +192,7 @@
      <attribute name="attrs">{'invisible':[('job_category', '=', 'talent')]}</attribute>
       </xpath>
 <xpath expr="//button[@name='create_employee_from_applicant']" position="attributes">
-     <attribute name="attrs">{'invisible':['|','|',('is_final', '!=', True),('emp_id','!=',False),('hr_id','=',False)]}</attribute>
+     <attribute name="attrs">{'invisible':['|','|',('final', '!=', True),('emp_id','!=',False),('hr_id','=',False)]}</attribute>
       </xpath>
       <field name="department_id" position="attributes">
         <attribute name="readonly">1</attribute>

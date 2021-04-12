@@ -47,6 +47,7 @@
         </field>
       </record>
 
+     
 <record id="email_template_online_onboarding" model="mail.template">
         <field name="name">Onboarding: Online Onboarding</field>
         <field name="model_id" ref="wc_onboarding.model_onboarding_onboarding"></field>

@@ -15,7 +15,14 @@ class applicant(models.Model):
     black_listed = fields.Boolean()
     age_calculated = fields.Float(compute="_compute_age_calculated")
     emp_project=fields.Many2one('rcc.project',compute="compute_emp_project",string="Employee Project")
-    
+    final= fields.Boolean(compute='compute_final')
+
+    def compute_final(self):
+        if self.is_final or self.is_o_final:
+            self.final=True
+        else:
+            self.final=False
+
     def compute_emp_project(self):
         for this in self:
             this.emp_project=this.emp_id.project.id

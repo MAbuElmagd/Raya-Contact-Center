@@ -1,0 +1,20 @@
+<odoo>
+  <!-- <record model="ir.module.category" id="module_kpi">
+             <field name="name">KPi</field>
+             <field name="description">User access Employee KPI</field>
+             <field name="sequence">20</field>
+        </record> -->
+<!--         
+<data noupdate="1"> -->
+
+<record id="reporting_analyst_g" model="ir.module.category">
+        <field name="name">Reporting Analyst</field>
+      <field name="sequence">1</field>
+    </record>
+
+      <record id="reporting_analyst" model="res.groups">
+            <field name="name">Reporting Analyst</field>
+            <field name="category_id" ref="reporting_analyst_g"/>   
+        </record>
+  <!-- </data> -->
+</odoo>

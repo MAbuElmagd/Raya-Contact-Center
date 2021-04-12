@@ -1,0 +1,25 @@
+<odoo>
+  <data>
+    <record model="ir.ui.view" id="operational_hr_options.hiring_request_add">
+      <field name="name">operational_hr_options.hiring_request_add</field>
+      <field name="model">hiring.request</field>
+      <field name="inherit_id" ref="wc_hiring_request.view_hiring_request_form"/>
+      <field name="arch" type="xml">
+        <field name="sector" position="after">
+          <field name="options" attrs="{'readonly':[('state','!=','draft')],'required':[('category','=','operational')],'invisible':[('category','!=','operational')]}"/>
+        </field>
+      </field>
+    </record>
+    <record model="ir.ui.view" id="operational_hr_options.applicant_add">
+      <field name="name">operational_hr_options.applicant_add</field>
+      <field name="model">hr.applicant</field>
+      <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form"/>
+      <field name="arch" type="xml">
+        <field name="hiring_request" position="after">
+          <field name="options" readonly="1" force_save="1" attrs="{'invisible':['|',('hiring_request','=',False),('job_category','!=','operational')]}"/>
+        </field>
+      </field>
+    </record>
+
+  </data>
+</odoo>

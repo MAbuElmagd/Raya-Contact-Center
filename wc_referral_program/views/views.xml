@@ -1,0 +1,97 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+
+    <!-- <record id="wc_referral_program_job" model="ir.ui.view">
+      <field name="name">wc_referral_program_job</field>
+      <field name="model">hr.job</field>
+      <field name="inherit_id" ref="hr.view_hr_job_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//notebook" position="inside">
+          <page name="referral_bouns" string="Referral Bonus" attrs="{'invisible':[('job_category','!=','operational')]}">
+            <group>
+              <field name="bonus" attrs="{'required':[('job_category','!=','operational')]}"/>
+            </group>
+          </page>
+        </xpath>
+      </field>
+    </record> -->
+    <record id="wc_referral_program_app" model="ir.ui.view">
+      <field name="name">wc_referral_program_app</field>
+      <field name="model">hr.applicant</field>
+      <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//notebook" position="inside">
+          <page name="referral_candidate" string="Candidate's Referral" attrs="{'invisible':[('job_category','!=','operational')]}">
+            <!-- <field name="job_category" invisible="1"/> -->
+            <field name="referral_candidate">
+              <tree editable="top">
+                <field name="name" attrs="{'required':[('parent.job_category','=','operational')]}"/>
+                <field name="mobile" attrs="{'required':[('parent.job_category','=','operational')]}"/>
+                <field name="note"/>
+              </tree>
+            </field>
+          </page>
+          <page name="referral_bouns" string="Referral Bonus" attrs="{'invisible':['|',('job_category','!=','operational'),('referred_by_employee','=',False)]}">
+            <group>
+              <field name="three_days_training" force_save="1" readonly="1" invisible="1"/>
+              <field name="ninty_days_training" force_save="1" readonly="1" invisible="1"/>
+              <field name="fifty_three_days_training" force_save="1" readonly="1"/>
+              <field name="fifty_three_days_training_payment" widget="boolean_toggle" force_save="1" attrs="{'invisible':[('fifty_three_days_training','!=','eligible')]}"/>
+              <field name="fifty_ninty_days_training" force_save="1" readonly="1"/>
+              <field name="fifty_ninty_days_training_payment" widget="boolean_toggle" force_save="1" attrs="{'invisible':[('fifty_ninty_days_training','!=','eligible')]}"/>
+            </group>
+          </page>
+        </xpath>
+        <field name="department_id" position="after">
+          <field name="compute_fields" force_save="1"  invisible="1"/>
+          <field name="referred_by_hr_id" force_save="1"  invisible="1"/>
+          <field name="referred_by_employee_grade" force_save="1"  invisible="1"/>
+          <field name="referred_by_employee" force_save="1" attrs="{'invisible':[('job_category','!=','operational')]}"  />
+        </field>
+      </field>
+    </record>
+
+    <!-- actions opening views on models -->
+<!--
+    <record model="ir.actions.act_window" id="wc_referral_program.action_window">
+      <field name="name">wc_referral_program window</field>
+      <field name="res_model">wc_referral_program.wc_referral_program</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+-->
+
+    <!-- server action to the one above -->
+<!--
+    <record model="ir.actions.server" id="wc_referral_program.action_server">
+      <field name="name">wc_referral_program server</field>
+      <field name="model_id" ref="model_wc_referral_program_wc_referral_program"/>
+      <field name="state">code</field>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "tree,form",
+          "res_model": model._name,
+        }
+      </field>
+    </record>
+-->
+
+    <!-- Top menu item -->
+<!--
+    <menuitem name="wc_referral_program" id="wc_referral_program.menu_root"/>
+-->
+    <!-- menu categories -->
+<!--
+    <menuitem name="Menu 1" id="wc_referral_program.menu_1" parent="wc_referral_program.menu_root"/>
+    <menuitem name="Menu 2" id="wc_referral_program.menu_2" parent="wc_referral_program.menu_root"/>
+-->
+    <!-- actions -->
+<!--
+    <menuitem name="List" id="wc_referral_program.menu_1_list" parent="wc_referral_program.menu_1"
+              action="wc_referral_program.action_window"/>
+    <menuitem name="Server to list" id="wc_referral_program" parent="wc_referral_program.menu_2"
+              action="wc_referral_program.action_server"/>
+-->
+  </data>
+</odoo>

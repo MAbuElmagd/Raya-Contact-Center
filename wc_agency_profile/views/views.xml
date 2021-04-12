@@ -24,8 +24,9 @@
 						</h1>
 						<group>
 							<group>
-								<field name="pin_code" password="True" />
-								<field name="partner_id" donmain="[('is_agency','=',True)]" />
+								<field name="agency_name"  required="1" />
+								<field name="pin_code" required="1" />
+								<field name="partner_id" donmain="[('is_agency','=',True)]"  required="1" />
 							</group>
 						</group>
 					</sheet>
@@ -39,19 +40,45 @@
 	</record>
 
 
+	<record id="view_hr_applicant_form" model="ir.ui.view">
+		<field name="name">view.hr.applicant.form</field>
+		<field name="model">hr.applicant</field>
+		<field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form" />
+		<field name="arch" type="xml">
+			  <xpath expr="//field[@name='partner_id']" position="after" >
+				<field name="agency" />
+				<field name="agency_name"  attrs="{'invisible':[('agency','=',False)]}" />
+			  </xpath>
+			  <xpath expr="//field[@name='area']" position="after" >
+				<field name="text_area"  attrs="{'invisible':[('agency','=',False)]}" readonly="1" />
+			  </xpath>
+			  <xpath expr="//field[@name='age']" position="after" >
+				<field name="text_age"  attrs="{'invisible':[('agency','=',False)]}"  readonly="1" />
+			  </xpath>
+			  <xpath expr="//field[@name='faculty']" position="after" >
+				<field name="text_faculty"  attrs="{'invisible':[('agency','=',False)]}" readonly="1" />
+			  </xpath>
+			  <xpath expr="//field[@name='project']" position="after" >
+				<field name="text_project" attrs="{'invisible':[('agency','=',False)]}" readonly="1" />
+			  </xpath>
+		</field>
+	</record>
 
+				
 	<record id="view_agency_data_tree" model="ir.ui.view">
         <field name="name">agency.data.tree</field>
         <field name="model">agency.data</field>
         <field name="arch" type="xml">
             <tree>
 				<field name="name" />
+				<field name="agency_name" />
 				<field name="partner_id" />
+				
             </tree>
         </field>
     </record>
-	
-	
+
+
     <record id="view_agency_data_search" model="ir.ui.view">
         <field name="name">agency.data.list.select</field>
         <field name="model">agency.data</field>
@@ -62,7 +89,29 @@
             </search>
         </field>
     </record>
-	
+
+	<record model="ir.actions.act_window" id="view_agency_data_form_action">
+        <field name="name">Agencies</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">agency.data</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context"></field>
+        <field name="search_view_id" ref="view_agency_data_search" />
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+            Click to record a new Agency Data.
+          </p>
+        </field>
+		<field name="domain">[]</field>
+    </record>
+
+	<menuitem
+        id="menu_agency_data_act_acc"
+        sequence="10"
+        action="view_agency_data_form_action"
+    />
+
+
 	<!-- Import Form For Agencies -->
 	<record model="ir.ui.view" id="import_applications_agency_form_view">
         <field name="name">agency.import_wizard.form</field>
@@ -71,9 +120,11 @@
                     <form string="Import Agencies Application">
     	               <group>
                             <group>
-								<field name="agency" />
-								<field name="pin" />
-                                <field name="file" filename="name" />
+								<field name="agency"  options="{'no_quick_create':True,'no_create_edit':True,'no_open': True,}" required="1"/>
+								<field name="pin" required="1" />
+								<field name="job_id"  required="1"/>
+								<field name="hiring_request" invisible="1" />
+                                <field name="file" filename="name" required="1" />
                             </group>
                         </group>
                     <footer>
@@ -84,7 +135,7 @@
                 	</form>
                 </field>
         </record>
-        
+
         <record id="action_import_data" model="ir.actions.act_window">
             <field name="name">Agency Import Applications</field>
             <field name="type">ir.actions.act_window</field>
@@ -93,4 +144,38 @@
             <field name="view_id" ref="import_applications_agency_form_view"/>
             <field name="target">new</field>
         </record>
+			<menuitem
+        id="action_import_data_menue"
+        sequence="10"
+        action="action_import_data"
+    />
+
+
+			<record id="view_agency_data_report_view" model="ir.ui.view">
+				<field name="name">Agency Payment</field>
+				<field name="model">agency_payment</field>
+				<field name="arch" type="xml">
+					<tree>
+						<field name="partner_name" />
+						<field name="applicant_name" />
+						<field name="job_id" />
+						<field name="agency" />
+						<field name="project" />
+						<field name="sector" />
+						<field name="user_id" />
+						<field name="a50_certified" />
+						<field name="a50a90_days_hired" />
+					</tree>
+				</field>
+			</record>
+
+
+		<record id="view_agency_data_report_action" model="ir.actions.act_window">
+            <field name="name">Agency Payment</field>
+            <field name="res_model">agency_payment</field>
+            <field name="view_mode">tree,pivot</field>
+            <field name="view_id" ref="view_agency_data_report_view"/>
+        </record>
+
+		<menuitem name = "Agency Payment" id = "menu_agency_data_report" parent="menu_agency_data_act_acc" sequence="10" action="view_agency_data_report_action" />
 </odoo>

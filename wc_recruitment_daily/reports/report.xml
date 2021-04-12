@@ -1,0 +1,55 @@
+<odoo>
+    <record id="report_wc_recruitment_daily" model="ir.actions.report">
+        <field name="name">Daily Tracker Report</field>
+        <field name="model">report.wc_recruitment_daily.report_daily_tracker</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">wc_recruitment_daily.report_daily_tracker</field>
+        <field name="report_file">Recruitment Daily Tracker Report</field>
+        <field name="print_report_name">Daily Tracker Report</field>
+        <field name="binding_model_id" ref="model_wc_recruitment_daily"/>
+        <!-- <field name="binding_type">report</field> -->
+    </record>
+
+  <record id="action_report_wc_recruitment_daily" model="ir.actions.server">
+    <field name="name">Daily Tracker Report</field>
+    <field name="model_id" ref="model_wc_recruitment_daily"/>
+    <field name="state">code</field>
+    <field name="code">action = model.action_print_report_excel()</field>
+  </record>
+
+  <record id="form_report_wizard_wc_recruitment_daily" model="ir.ui.view">
+    <field name="name">form_report_wizard_wc_recruitment_daily</field>
+    <field name="model">wc_recruitment_daily</field>
+    <field name="arch" type="xml">
+      <form>
+        <group>
+          <group>
+            <field name="date_from"/>
+            <field name="date_to"/>
+          </group>
+        </group>
+        <footer>
+          <button name="action_print_report_excel_wiz" type="object" string="Process"/>
+          or
+          <button name="cancel" string="Cancel" special="cancel" class="oe_link"/>
+        </footer>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_report_wizard_wc_recruitment_daily" model="ir.actions.act_window">
+    <field name="name">Daily Tracker Report</field>
+    <field name="type">ir.actions.act_window</field>
+    <field name="res_model">wc_recruitment_daily</field>
+    <field name="view_mode">form</field>
+    <field name="view_id" ref="wc_recruitment_daily.form_report_wizard_wc_recruitment_daily"/>
+    <field name="target">new</field>
+  </record>
+
+
+  <menuitem id="menu_report_wc_recruitment_daily"
+            parent="hr_recruitment.report_hr_recruitment"
+            name="Daily Tracker Report"
+            action="action_report_wizard_wc_recruitment_daily"/>
+
+</odoo>

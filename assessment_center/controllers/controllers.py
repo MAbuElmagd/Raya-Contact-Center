@@ -242,9 +242,13 @@ class Survey(http.Controller):
         if post.get('ass_id', False) :
             if post.get('ass_id') != None:
                 answer_sudo.sudo().write({'assessment_id':int(post.get('ass_id'))})
+                assessment_id = request.env['assessment_center.assessment_center'].sudo().browse(int(post.get('ass_id')))
+                if assessment_id and not assessment_id.answer_id:
+                    assessment_id.sudo().write({'answer_id':answer_sudo.id})
         elif post.get('app_id', False) :
             if post.get('app_id') != None:
-                answer_sudo.sudo().write({'applicant_id':int(post.get('app_id'))})
+                applicant_id = request.env['hr.applicant'].sudo().browse(int(post.get('app_id')))
+                answer_sudo.sudo().write({'applicant_id':applicant_id.id,'project_id':applicant_id.project.id,'recruiter_id':applicant_id.user_id.id})
         data = {
             'is_html_empty': is_html_empty,
             'survey': survey_sudo,
