@@ -1,7 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_employee_kpi_kpi_category,employee_kpi.kpi_category,model_kpi_category,kpi_officer,1,1,1,1
-access_employee_kpi_kpi_data,employee_kpi.employee_kpi_data,model_employee_kpi_data,kpi_officer,1,1,1,1
-access_employee_kpi_emp_officer,employee_kpi.employee_officer,model_employee_kpi_data,hr.group_hr_user,1,0,0,0
-access_employee_kpi_emp_officer,employee_kpi.employee_manager,model_employee_kpi_data,hr.group_hr_manager,1,0,0,0
-access_employee_kpi_cat_emp_officer,employee_kpi_cat.employee_officer,model_kpi_category,hr.group_hr_user,1,0,0,0
-access_employee_kpi_cat_emp_officer,employee_kpi_cat.employee_manager,model_kpi_category,hr.group_hr_user,1,0,0,0
