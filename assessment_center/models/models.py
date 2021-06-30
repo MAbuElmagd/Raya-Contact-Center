@@ -666,6 +666,7 @@ class Applicant(models.Model):
                     _('you can not delete this record delete (Delete connected Assessment First).')
                 )
         return super(Applicant, self).unlink()
+    
 class MailTemplate(models.Model):
     _inherit = 'mail.template'
 
@@ -683,6 +684,7 @@ class MailTemplate(models.Model):
                 )
 
     @api.constrains('assessment_meeting')
+    
     def _constrains_internal_sourcing_template(self):
         for rec in self:
             mail = self.search([('assessment_test', '=', True),
